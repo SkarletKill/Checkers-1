@@ -1,16 +1,18 @@
 package com.gmail.lidteam.checkers.connectors;
 
+import com.gmail.lidteam.checkers.models.OneGame;
+
 import java.util.List;
 
 public class DBLocalConnector {
 
-    public List<String> getAllGames() {
+    public List<OneGame> getAllGames() {
         return null;
     }
 
-    public String getOneGame(int id) {
+    public OneGame getOneGame(int id) {
         return null;
     }
 
-    public void saveGame(String game){}
+    public void saveGame(OneGame game){}
 }
