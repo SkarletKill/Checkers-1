@@ -3,7 +3,6 @@ package com.gmail.lidteam.checkers.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
@@ -16,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,6 +24,7 @@ import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.connectors.DBLocalConnector;
 import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
 import com.gmail.lidteam.checkers.models.CheckerColor;
+import com.gmail.lidteam.checkers.models.GameForDB;
 import com.gmail.lidteam.checkers.models.OneGame;
 import com.gmail.lidteam.checkers.models.User;
 
@@ -34,13 +35,15 @@ public class MainActivity extends AppCompatActivity
     private User user;
     private ListView history;
     private GameItemAdapter adapter;
-    private DBLocalConnector dbLocalConnector = new DBLocalConnector();
+    private DBLocalConnector dbLocalConnector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
+         dbLocalConnector = new DBLocalConnector(this);
+
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
 
@@ -56,10 +59,27 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        if(dbLocalConnector.getAllGames()!= null){
+            history = findViewById(R.id.history) ;
+            adapter = new GameItemAdapter(this, new ArrayList<>(dbLocalConnector.getAllGames()));
+            history.setAdapter(adapter);
+            history.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                @Override
+                public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                    // TODO Auto-generated method stub
+                    int id_To_Search = arg2 + 1;
 
-        history = findViewById(R.id.history) ;
-        adapter = new GameItemAdapter(this, new ArrayList<>(dbLocalConnector.getAllGames()));
-        history.setAdapter(adapter);
+                    Bundle dataBundle = new Bundle();
+                    dataBundle.putInt("id", id_To_Search);
+
+                    Intent intent = new Intent(getApplicationContext(),GameDetailsActivity.class);
+
+                    intent.putExtras(dataBundle);
+                    startActivity(intent);
+                }
+            });
+        }
+
     }
 
     @Override
@@ -102,11 +122,10 @@ public class MainActivity extends AppCompatActivity
     class GameItemAdapter extends BaseAdapter {
 
         private LayoutInflater layoutInflater;
-        private ArrayList<OneGame> games;
+        private ArrayList<GameForDB> games;
         private int size;
-        SharedPreferencesConnector sharedPreferencesConnector;
 
-        GameItemAdapter(Context context, ArrayList<OneGame> games) {
+        GameItemAdapter(Context context, ArrayList<GameForDB> games) {
             this.size = games.size();
             this.layoutInflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
             this.games = games;
@@ -127,18 +146,18 @@ public class MainActivity extends AppCompatActivity
             return 1; //games.get(i).getId();
         }
 
-        public ArrayList<OneGame> getGames() {
+        public ArrayList<GameForDB> getGames() {
             return games;
         }
 
         @SuppressLint({"ViewHolder", "InflateParams"})
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            OneGame game = games.get(size - 1 - i);
+            GameForDB game = games.get(size - 1 - i);
             view = layoutInflater.inflate(R.layout.game_item_layout, null);
-            CheckerColor bgcolor = game.getWinnerColor(sharedPreferencesConnector.getCurrentUser());
-            view.setBackgroundColor(Color.parseColor(bgcolor.getColorCode()));
-            int textColor = Color.parseColor(bgcolor.getOppositeColorCode());
+
+            view.setBackgroundColor(game.getBgColor());
+            int textColor = game.getTextColor();
 
             TextView gameDateTime = view.findViewById(R.id.gameDateTime);
             TextView gameDuration = view.findViewById(R.id.gameDuration);
@@ -157,16 +176,14 @@ public class MainActivity extends AppCompatActivity
             numberOfMoves.setTextColor(textColor);
 
             // TODO нормальні написи із поясненнями
-            gameDateTime.setText(game.getStartTime().toString());
-            gameDuration.setText(game.getDuration());
-            String opponents = game.getBlack().getNickname() + " (b) VS " +
-                    game.getWhite().getNickname() + "(W)";
-            gameOpponent.setText(opponents);
-            gameType.setText(game.getGameType().toString());
-            String winnerStr = "The winner is : " + game.getWinner().getNickname();
+            gameDateTime.setText(game.getGameDateTime());
+            gameDuration.setText(game.getGameDuration());
+            gameOpponent.setText(game.getGameOpponent());
+            gameType.setText(game.getGameType());
+            String winnerStr = "The winner is : " + game.getGameWinner();
             gameWinner.setText(winnerStr);
             checkersWinnerLeft.setText(game.getCheckersWinnerLeft());
-            numberOfMoves.setText(game.getMoves().size());
+            numberOfMoves.setText(game.getNumberOfMoves());
 
             return view;
         }

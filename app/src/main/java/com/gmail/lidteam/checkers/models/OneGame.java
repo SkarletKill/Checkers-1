@@ -1,5 +1,6 @@
 package com.gmail.lidteam.checkers.models;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,20 @@ public class OneGame {
     private int whites;
     private int blacks;
     private User winner = null;
+
+    public OneGame(GameType gameType, User white, User black, Map<String, Cell> board) {
+        this.gameType = gameType;
+        this.white = white;
+        this.black = black;
+        this.startTime = new Date();
+        this.moves = new ArrayList<>();
+        this.board = board;
+    }
+
+    public void endGame(){
+        endTame = new Date();
+    }
+
 
     private void initDesk() {
     }
@@ -52,7 +67,7 @@ public class OneGame {
 
     private void deleteChecker(Cell cell){}
 
-    public List<Move> getMoves() {
+    List<Move> getMoves() {
         return moves;
     }
 
@@ -68,7 +83,7 @@ public class OneGame {
         return black;
     }
 
-    public Date getStartTime() {
+    Date getStartTime() {
         return startTime;
     }
 
@@ -88,11 +103,11 @@ public class OneGame {
         return blacks;
     }
 
-    public User getWinner() {
+    User getWinner() {
         return winner;
     }
 
-    public String getDuration(){
+    String getDuration(){
         long diff = endTame.getTime() - startTime.getTime();
         long diffSeconds = diff / 1000 % 60;
         long diffMinutes = diff / (60 * 1000) % 60;
@@ -108,8 +123,10 @@ public class OneGame {
         else return 0;
     }
 
-    public CheckerColor getWinnerColor(User user){
+    CheckerColor getWinnerColor(User user){
         if(user.equals(winner)) return CheckerColor.WHITE;
         else return CheckerColor.BLACK;
     }
+
+
 }

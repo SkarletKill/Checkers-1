@@ -2,6 +2,7 @@ package com.gmail.lidteam.checkers.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,27 +20,35 @@ import com.gmail.lidteam.checkers.models.Move;
 import java.util.ArrayList;
 
 public class GameDetailsActivity extends AppCompatActivity {
-    private ListView movesListView;
-    private MoveItemAdapter adapter;
-    private DBLocalConnector localConnector = new DBLocalConnector();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_details);
-        //get extra id
+        DBLocalConnector localConnector = new DBLocalConnector(this);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            int gameId = extras.getInt("id");
 
-        // ініціалізуємо усю інфу про гру, що була на головному екрані (копія із адаптера гри)
+            if (gameId > 0) {
+                //means this is the view part not the add contact part.
+                Cursor rs = localConnector.getOneGame(gameId);
+                rs.moveToFirst();
 
-        int gameId = 1;
-        movesListView = findViewById(R.id.movesListView) ;
-        adapter = new MoveItemAdapter(this, new ArrayList<>(localConnector.getOneGame(gameId).getMoves()));
-        movesListView.setAdapter(adapter);
+                //get extra id
+                // ініціалізуємо усю інфу про гру, що була на головному екрані (копія із адаптера гри)
+                ListView movesListView = findViewById(R.id.movesListView);
+                MoveItemAdapter adapter = new MoveItemAdapter(this, new ArrayList<Move>());
+                movesListView.setAdapter(adapter);
+                
+                if (!rs.isClosed()) {
+                    rs.close();
+                }
+
+            }
+        }
 
     }
-
-
 
     class MoveItemAdapter extends BaseAdapter {
 
