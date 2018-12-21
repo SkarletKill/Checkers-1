@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameForDB {
-    private SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector();
-
+    private int id;
     private String gameDateTime;
     private String gameDuration;
     private String gameOpponent;
@@ -22,34 +21,55 @@ public class GameForDB {
     private int textColor;
 
     public GameForDB(OneGame game) {
+        SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector();
+
         setGameDateTime(game.getStartTime().toString());
         setGameDuration(game.getDuration());
-        if(game.getBlack().equals(getSharedPreferencesConnector().getCurrentUser())){
-            setGameOpponent(getSharedPreferencesConnector().getCurrentUser().getNickname() + "(b)  VS  " + game.getWhite().getNickname() +  " (w)" );
+        if(game.getBlack().equals(sharedPreferencesConnector.getCurrentUser())){
+            setGameOpponent(sharedPreferencesConnector.getCurrentUser().getNickname() + "(b)  VS  " + game.getWhite().getNickname() +  " (w)" );
         }
         else {
-            setGameOpponent(getSharedPreferencesConnector().getCurrentUser().getNickname() + "(w)  VS  " + game.getWhite().getNickname() +  " (b)");
+            setGameOpponent(sharedPreferencesConnector.getCurrentUser().getNickname() + "(w)  VS  " + game.getWhite().getNickname() +  " (b)");
         }
         setGameType(game.getGameType().name());
         setGameWinner(game.getWinner().getNickname());
         setCheckersWinnerLeft(String.valueOf(game.getCheckersWinnerLeft()));
         setNumberOfMoves(String.valueOf(game.getMoves().size()));
-        CheckerColor color = game.getWinnerColor(getSharedPreferencesConnector().getCurrentUser());
+        CheckerColor color = game.getWinnerColor(sharedPreferencesConnector.getCurrentUser());
         setBgColor(Color.parseColor(color.getColorCode()));
         setTextColor(Color.parseColor(color.getOppositeColorCode()));
         setMoves(game.getMoves());
     }
 
+    public GameForDB setId(int id) {
+        this.id = id;
+        return this;
+    }
 
-    public ArrayList<Move> getMoves() {
-        // TODO      ArrayList<Move> parseMoves()
-        return new ArrayList<>();
+    public GameForDB(String gameDateTime, String gameDuration, String gameOpponent, String gameType, String gameWinner, String checkersWinnerLeft, String numberOfMoves, String moves, int bgColor, int textColor) {
+        this.gameDateTime = gameDateTime;
+        this.gameDuration = gameDuration;
+        this.gameOpponent = gameOpponent;
+        this.gameType = gameType;
+        this.gameWinner = gameWinner;
+        this.checkersWinnerLeft = checkersWinnerLeft;
+        this.numberOfMoves = numberOfMoves;
+        this.moves = moves;
+        this.bgColor = bgColor;
+        this.textColor = textColor;
     }
 
     private void setMoves(List<Move> moves) {
         this.moves = moves.toString();
     }
 
+    public String getMoves() {
+        return this.moves;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     public String getGameDateTime() {
         return gameDateTime;
@@ -87,10 +107,6 @@ public class GameForDB {
         return textColor;
     }
 
-    private SharedPreferencesConnector getSharedPreferencesConnector() {
-        return sharedPreferencesConnector;
-    }
-
     public void setGameDateTime(String gameDateTime) {
         this.gameDateTime = gameDateTime;
     }
@@ -125,6 +141,23 @@ public class GameForDB {
 
     public void setTextColor(int textColor) {
         this.textColor = textColor;
+    }
+
+    @Override
+    public String toString() {
+        return "GameForDB{" +
+                "id=" + id +
+                ", gameDateTime='" + gameDateTime + '\'' +
+                ", gameDuration='" + gameDuration + '\'' +
+                ", gameOpponent='" + gameOpponent + '\'' +
+                ", gameType='" + gameType + '\'' +
+                ", gameWinner='" + gameWinner + '\'' +
+                ", checkersWinnerLeft='" + checkersWinnerLeft + '\'' +
+                ", numberOfMoves='" + numberOfMoves + '\'' +
+                ", moves='" + moves + '\'' +
+                ", bgColor=" + bgColor +
+                ", textColor=" + textColor +
+                '}';
     }
 }
 
