@@ -36,4 +36,5 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.jakewharton:butterknife:8.5.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    implementation 'com.github.apl-devs:appintro:v4.2.3'
 }

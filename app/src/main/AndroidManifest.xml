@@ -30,7 +30,9 @@
             android:name=".activities.SignupActivity"
             android:theme="@style/AppTheme.Dark" />
         <activity android:name=".activities.OneGameActivity" />
-        <activity android:name=".activities.UserAccountActivity"></activity>
+        <activity android:name=".activities.UserAccountActivity" />
+        <activity android:name=".activities.IntroActivity"
+            android:theme="@style/AppTheme.Dark"/>
     </application>
 
 </manifest>

@@ -1,5 +1,7 @@
 package com.gmail.lidteam.checkers.controllers;
 
+import android.content.Context;
+
 import com.gmail.lidteam.checkers.connectors.DBConnectionException;
 import com.gmail.lidteam.checkers.connectors.DBConnector;
 import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
@@ -10,8 +12,8 @@ public class UserController {
     private DBConnector dbConnector;
     private SharedPreferencesConnector sharedPreferencesConnector;
 
-    public UserController() {
-        sharedPreferencesConnector = new SharedPreferencesConnector();
+    public UserController(Context context) {
+        sharedPreferencesConnector = new SharedPreferencesConnector(context);
         this.user = sharedPreferencesConnector.getCurrentUser();
     }
 

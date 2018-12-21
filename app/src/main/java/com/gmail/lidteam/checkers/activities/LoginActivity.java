@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
+import com.gmail.lidteam.checkers.connectors.DBConnector;
+import com.gmail.lidteam.checkers.models.User;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,6 +21,8 @@ import butterknife.ButterKnife;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    User user;
+    DBConnector dbConnector;
 
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
