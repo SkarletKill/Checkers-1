@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_start_offline) {
             // Handle the camera action
+            Intent intent = new Intent(MainActivity.this, OneGameActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_start_bluetooth) {
 
         } else if (id == R.id.nav_start_online) {
