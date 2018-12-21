@@ -1,5 +1,6 @@
 package com.gmail.lidteam.checkers.models;
 
+import android.content.Context;
 import android.graphics.Color;
 
 import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
@@ -20,8 +21,8 @@ public class GameForDB {
     private int bgColor;
     private int textColor;
 
-    public GameForDB(OneGame game) {
-        SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector();
+    public GameForDB(OneGame game, Context context) {
+        SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector(context);
 
         setGameDateTime(game.getStartTime().toString());
         setGameDuration(game.getDuration());

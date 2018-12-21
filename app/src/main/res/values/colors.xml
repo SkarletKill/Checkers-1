@@ -14,4 +14,9 @@
   <color name="base">#AAAAAA</color>
   <color name="iron">#CCCCCC</color>
   <color name="white">#FFFFFF</color>
+  <color name="beautifulGreen">#8a8604</color>
+  <color name="beautifulViolet">#a3586d</color>
+  <color name="beautifulDullBlue">#6a8a82</color>
+  <color name="beautifulDullDeepRed">#a7414a</color>
+
 </resources>

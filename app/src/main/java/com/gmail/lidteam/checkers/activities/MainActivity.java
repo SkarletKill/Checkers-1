@@ -3,8 +3,10 @@ package com.gmail.lidteam.checkers.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -23,9 +25,8 @@ import android.widget.TextView;
 
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.connectors.DBLocalConnector;
-import com.gmail.lidteam.checkers.models.CheckerColor;
+import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
 import com.gmail.lidteam.checkers.models.GameForDB;
-import com.gmail.lidteam.checkers.models.Move;
 import com.gmail.lidteam.checkers.models.User;
 
 import java.util.ArrayList;
@@ -34,11 +35,16 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private User user;
     private GameItemAdapter adapter;
+    SharedPreferencesConnector sharedPreferencesConnector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sharedPreferencesConnector = new SharedPreferencesConnector(MainActivity.this);
+
+        staerIntroActivitu();
 
         DBLocalConnector dbLocalConnector = new DBLocalConnector(this);
 //        dbLocalConnector.deleteAll();
@@ -99,6 +105,25 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private void staerIntroActivitu() {
+
+        //  Declare a new thread to do a preference check
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //  If the activity has never started before...
+                if (sharedPreferencesConnector.isFirstStart()) {
+                    //  Launch app intro
+                    Intent i = new Intent(MainActivity.this, IntroActivity.class);
+                    startActivity(i);
+                    sharedPreferencesConnector.setNotFirstStart();
+                }
+            }
+        });
+        // Start the thread
+        t.start();
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -112,7 +137,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -125,9 +150,14 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
 
         } else if (id == R.id.nav_intro) {
-
+            Intent i = new Intent(MainActivity.this, IntroActivity.class);
+            startActivity(i);
         } else if (id == R.id.nav_send) {
-
+            String OUR_MAIL_ADDRESS = "veggimail6@gmail.com";
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                    "mailto", OUR_MAIL_ADDRESS, null));
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Trigger Reminders");
+            startActivity(Intent.createChooser(emailIntent, "Send email..."));
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
