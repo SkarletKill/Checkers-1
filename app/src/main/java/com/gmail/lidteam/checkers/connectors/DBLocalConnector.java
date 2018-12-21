@@ -27,7 +27,7 @@ public class DBLocalConnector extends SQLiteOpenHelper {
     public static final String CONTACTS_COLUMN_MOVES = "moves";
 
     public DBLocalConnector(Context context) {
-        super(context, DATABASE_NAME, null, 0);
+        super(context, DATABASE_NAME, null, 1);
     }
 
 
