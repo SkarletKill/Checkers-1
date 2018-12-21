@@ -6,6 +6,9 @@ public class User {
     private int unbelievableWins;
     private int epicFails;
     private int draws;
+    private GameType preferredType;
+    private PlayerColor preferredColor;
+    private AILevel preferredAiLevel;
 
     public User(String email, String nickname, int unbelievableWins, int epicFails, int draws) {
         this.email = email;
@@ -13,6 +16,30 @@ public class User {
         this.unbelievableWins = unbelievableWins;
         this.epicFails = epicFails;
         this.draws = draws;
+    }
+
+    public User(String email, String nickname, int unbelievableWins, int epicFails, int draws,
+                GameType preferredType, PlayerColor preferredColor, AILevel preferredAiLevel) {
+        this.email = email;
+        this.nickname = nickname;
+        this.unbelievableWins = unbelievableWins;
+        this.epicFails = epicFails;
+        this.draws = draws;
+        this.preferredType = preferredType;
+        this.preferredColor = preferredColor;
+        this.preferredAiLevel = preferredAiLevel;
+    }
+
+    public GameType getPreferredType() {
+        return preferredType;
+    }
+
+    public PlayerColor getPreferredColor() {
+        return preferredColor;
+    }
+
+    public AILevel getPreferredAiLevel() {
+        return preferredAiLevel;
     }
 
     public String getEmail() {

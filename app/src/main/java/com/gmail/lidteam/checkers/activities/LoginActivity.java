@@ -1,8 +1,10 @@
 package com.gmail.lidteam.checkers.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -13,7 +15,13 @@ import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.connectors.DBConnector;
+import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
 import com.gmail.lidteam.checkers.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,6 +31,10 @@ public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_SIGNUP = 0;
     User user;
     DBConnector dbConnector;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    String email;
+    String password;
 
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
@@ -34,7 +46,27 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+
         
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+
+                } else {
+                    // User is signed out
+
+                }
+
+            }
+        };
+
+
+
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -42,7 +74,6 @@ public class LoginActivity extends AppCompatActivity {
                 login();
             }
         });
-
         _signupLink.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -56,6 +87,12 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+//    private void updateUI(FirebaseUser user) {
+//        if (user != null) {
+//          finish();
+//        }
+//    }
+
     public void login() {
         Log.d(TAG, "Login");
 
@@ -66,26 +103,38 @@ public class LoginActivity extends AppCompatActivity {
 
         _loginButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();
+//        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
+//                R.style.AppTheme_Dark_Dialog);
+//        progressDialog.setIndeterminate(true);
+//        progressDialog.setMessage("Authenticating...");
+//        progressDialog.show();
 
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        email = _emailText.getText().toString();
+        password = _passwordText.getText().toString();
 
-        // TODO: Implement your own authentication logic here.
+        mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful()) {
+                    onLoginSuccess();
+                }else
+                    onLoginFailed();
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
+            }
+        });
+
+//        DBConnector dbConnector = DBConnector.getInstance();
+//        dbConnector.getUser(email, password);
+//
+//        new android.os.Handler().postDelayed(
+//                new Runnable() {
+//                    public void run() {
+//                        // On complete call either onLoginSuccess or onLoginFailed
+//                        onLoginSuccess();
+//                        // onLoginFailed();
+////                        progressDialog.dismiss();
+//                    }
+//                }, 3000);
     }
 
 
@@ -93,9 +142,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
+                SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector(this);
+                sharedPreferencesConnector.setCurrentUser(new User(email, "nick", 0,0,0));
 
-                // TODO: Implement successful signup logic here
-                // By default we just finish the Activity and log them in automatically
+//                 TODO: Implement successful signup logic here
+//                 By default we just finish the Activity and log them in automatically
                 this.finish();
             }
         }
@@ -140,4 +191,6 @@ public class LoginActivity extends AppCompatActivity {
 
         return valid;
     }
+
+
 }
