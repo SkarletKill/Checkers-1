@@ -60,10 +60,10 @@ public class ImageAdapter extends BaseAdapter {
     public	Integer[] mCheckersIds = generateCheckers();
 
     private Integer[] generateDesk(){
-        Integer[] startBlack = { R.drawable.black_square_256, R.drawable.white_square_256, R.drawable.black_square_256, R.drawable.white_square_256,
-                R.drawable.black_square_256, R.drawable.white_square_256, R.drawable.black_square_256, R.drawable.white_square_256};
-        Integer[] startWhite = { R.drawable.white_square_256, R.drawable.black_square_256, R.drawable.white_square_256, R.drawable.black_square_256,
-                R.drawable.white_square_256, R.drawable.black_square_256, R.drawable.white_square_256, R.drawable.black_square_256 };
+        Integer[] startBlack = { R.drawable.black_square_128, R.drawable.white_square_128, R.drawable.black_square_128, R.drawable.white_square_128,
+                R.drawable.black_square_128, R.drawable.white_square_128, R.drawable.black_square_128, R.drawable.white_square_128};
+        Integer[] startWhite = { R.drawable.white_square_128, R.drawable.black_square_128, R.drawable.white_square_128, R.drawable.black_square_128,
+                R.drawable.white_square_128, R.drawable.black_square_128, R.drawable.white_square_128, R.drawable.black_square_128 };
 
         ArrayList<Integer> deskList = new ArrayList<>();
         for (int i = 0; i < 4; i++) {

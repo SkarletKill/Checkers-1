@@ -72,43 +72,15 @@ public class OneGameActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View v, int position,
                                 long id) {
-            // TODO Auto-generated method stub
-            // Get the selected item text
-            String selectedItem = parent.getItemAtPosition(position).toString();
-
-            // Display the selected item text to app interface
-//            tv_message.setText("Selected item : " + selectedItem);
+            // выводим номер позиции
+            String coordinates = parsePosition(position);
+            gameType.setText(coordinates);     // need change
 
             // Get the current selected view as a TextView
-            ImageView iv = (ImageView) v;
+//            ImageView iv = (ImageView) v;
 
             // Set the current selected item background color
-            iv.setBackgroundColor(Color.parseColor("#FFFFFF"));
-            iv.setImageResource(R.drawable.checker_black);
-
-            // Set the current selected item text color
-//            iv.setTextColor(Color.BLUE);
-
-            // Get the last selected View from GridView
-//            ImageView previousSelectedView = (ImageView) board.getChildAt(previousSelectedPosition);
-
-            // If there is a previous selected view exists
-//            if (previousSelectedPosition != -1)
-//            {
-//                // Set the last selected View to deselect
-//                previousSelectedView.setSelected(false);
-//
-//                // Set the last selected View background color as deselected item
-//                previousSelectedView.setBackgroundColor(Color.parseColor("#FFFF4F25"));
-//
-//                // Set the last selected View text color as deselected item
-//                previousSelectedView.setTextColor(Color.DKGRAY);
-//            }
-
-            // Set the current selected view position as previousSelectedPosition
-//            previousSelectedPosition = position;
-            // выводим номер позиции
-            gameType.setText(String.valueOf(position));     // need change
+//            iv.setImageResource(R.drawable.checker_black);
         }
     };
 
@@ -166,6 +138,12 @@ public class OneGameActivity extends AppCompatActivity {
         gameModel = new OneGame(gameType,
                 playerColor.equals(PlayerColor.WHITE) ? userI : userEnemy,
                 playerColor.equals(PlayerColor.WHITE) ? userEnemy : userI);
+    }
+
+    private String parsePosition(int pos){
+        int y = pos / 8;
+        int x = 1 + pos % 8;
+        return String.valueOf((char)('h' - y)) + x;
     }
 
     public void onGridItemClick() {
