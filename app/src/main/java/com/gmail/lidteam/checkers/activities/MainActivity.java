@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.connectors.DBLocalConnector;
 import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
+import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.GameForDB;
 import com.gmail.lidteam.checkers.models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,28 +34,23 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private User user;
     private GameItemAdapter adapter;
-    private SharedPreferencesConnector sharedPreferencesConnector;
     private DBLocalConnector dbLocalConnector;
+    private UserController userController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        sharedPreferencesConnector = new SharedPreferencesConnector(MainActivity.this);
         staelIntroActivity();
+        userController  = UserController.getInstance(this);
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-//        mAuth.signOut();
-//        sharedPreferencesConnector.unSetCurrentUser();
         dbLocalConnector = new DBLocalConnector(this);
-//        dbLocalConnector.deleteAll();
-//        if(sharedPreferencesConnector.noUserLogged() || (mAuth.getCurrentUser() == null))  {
+        if(userController.noUserLoggedIn() || mAuth.getCurrentUser() == null)  {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
-//        }
+        }
         System.out.println(mAuth.getUid());
-        user = sharedPreferencesConnector.getCurrentUser();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 //        ArrayList<Move> moves = new ArrayList<>();
@@ -111,11 +107,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setUserInfo() {
-        user = sharedPreferencesConnector.getCurrentUser();
+        User user = userController.getUser();
         NavigationView nav = findViewById(R.id.nav_view);
         TextView userNicknameView = nav.getHeaderView(0).findViewById(R.id.user_nickname);
         TextView userEmailView = nav.getHeaderView(0).findViewById(R.id.user_email);
-        if(user!=null){
+        if(user !=null){
             userNicknameView.setText(user.getNickname());
             userEmailView.setText(user.getEmail());
         }
@@ -123,20 +119,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void staelIntroActivity() {
-        //  Declare a new thread to do a preference check
+        final SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector(this);
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                //  If the activity has never started before...
                 if (sharedPreferencesConnector.isFirstStart()) {
-                    //  Launch app intro
                     Intent i = new Intent(MainActivity.this, IntroActivity.class);
                     startActivity(i);
                     sharedPreferencesConnector.setNotFirstStart();
                 }
             }
         });
-        // Start the thread
         t.start();
     }
 
@@ -176,9 +169,7 @@ public class MainActivity extends AppCompatActivity
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Trigger Reminders");
             startActivity(Intent.createChooser(emailIntent, "Send email..."));
         }else if (id == R.id.nav_exit) {
-            sharedPreferencesConnector.unSetCurrentUser();
-            FirebaseAuth mAuth = FirebaseAuth.getInstance();
-            mAuth.signOut();
+            userController.logOut();
             Intent intent = getIntent();
             finish();
             startActivity(intent);

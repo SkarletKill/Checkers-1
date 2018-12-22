@@ -11,14 +11,12 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.gmail.lidteam.checkers.R;
-import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
+import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.AILevel;
 import com.gmail.lidteam.checkers.models.GameType;
 import com.gmail.lidteam.checkers.models.PlayerColor;
 import com.gmail.lidteam.checkers.models.User;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
@@ -62,15 +60,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     public static class MyPreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-        SharedPreferencesConnector sharedPreferencesConnector;
-        User user;
+        UserController userController;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
-            sharedPreferencesConnector = new SharedPreferencesConnector(this.getActivity().getApplicationContext());
-            user = sharedPreferencesConnector.getCurrentUser();
+            userController = UserController.getInstance(this.getActivity().getApplicationContext());
             initListPreferences();
         }
 
@@ -79,6 +75,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             final ListPreference prefAiLevel = (ListPreference) findPreference("pref_ai_level");
             final ListPreference prefGameType = (ListPreference) findPreference("pref_game_type");
 
+            User user = userController.getUser();
             prefCheckerColor.setValueIndex(user.getPreferredColor().ordinal());
             prefAiLevel.setValueIndex(user.getPreferredAiLevel().ordinal());
             prefGameType.setValueIndex(user.getPreferredType().ordinal());
@@ -94,8 +91,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     System.out.println("new  \"username\"  " +  newValue.toString());
-                    user.setNickname(newValue.toString());
-                    updateUser();
+                    userController.changeNickName(newValue.toString());
                     pref.setSummary(newValue.toString());
                     pref.setText(newValue.toString());
                     return false;
@@ -117,24 +113,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             if (key.equals("pref_checker_color")) {
                 String upperCase =  ((ListPreference) preference).getEntry().toString().toUpperCase();
                 preference.setSummary(((ListPreference) preference).getEntry());
-                user.setPreferredColor(PlayerColor.valueOf(upperCase));
+                userController.setPreferredColor(PlayerColor.valueOf(upperCase));
             }
             if (key.equals("pref_ai_level")) {
 //                System.out.println("key.equals(pref_ai_level   " +  ((ListPreference) preference).getEntry());
 //                String upperCase =  ((ListPreference) preference).getEntry().toString().toUpperCase();
                 String upperCase =  ((ListPreference) preference).getEntry().toString().toUpperCase();
-                user.setPreferredAiLevel(AILevel.valueOf(upperCase));
+                userController.setPreferredAiLevel(AILevel.valueOf(upperCase));
                 preference.setSummary(((ListPreference) preference).getEntry());
             }
             if (key.equals("pref_game_type")) {
 //                System.out.println("key.equals(pref_game_type   " +  ((ListPreference) preference).getEntry());
 //                String type =  ((ListPreference) preference).getEntry().toString().toUpperCase();
                 String upperCase =  ((ListPreference) preference).getEntry().toString().toUpperCase();
-                user.setPreferredType(GameType.valueOf(upperCase));
+                userController.setPreferredType(GameType.valueOf(upperCase));
                 preference.setSummary(((ListPreference) preference).getEntry());
             }
-            updateUser();
-
         }
 
         @Override
@@ -149,18 +143,5 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onPause();
         }
 
-
-        private void updateUser(){
-            // method, that updates user in the cloud
-            sharedPreferencesConnector.setCurrentUser(user);
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference();
-            FirebaseAuth mAuth = FirebaseAuth.getInstance();
-            if(mAuth.getUid() != null){
-                myRef.child(mAuth.getUid()).child("userHimself").removeValue();
-                myRef.child(mAuth.getUid()).child("userHimself").push().setValue(user);
-//                myRef.child(mAuth.getUid()).child("userHimself").setValue(user);
-            }
-        }
     }
 }

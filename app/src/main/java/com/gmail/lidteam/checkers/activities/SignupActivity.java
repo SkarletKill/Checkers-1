@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
-import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
+import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.AILevel;
 import com.gmail.lidteam.checkers.models.GameType;
 import com.gmail.lidteam.checkers.models.PlayerColor;
@@ -84,7 +84,6 @@ public class SignupActivity extends AppCompatActivity {
         final String email = _emailText.getText().toString();
         final String password = _passwordText.getText().toString();
 
-        new SharedPreferencesConnector(this).setCurrentUser(new User(email, name, 0,0,0));
 
         mAuth.createUserWithEmailAndPassword(email, password).
                 addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
@@ -117,6 +116,7 @@ public class SignupActivity extends AppCompatActivity {
         User user = new User(email,
                 name, 0,0,0, GameType.ANY, PlayerColor.ANY, AILevel.EASY);
         // Write a message to the database
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference();
         if(mAuth.getUid() != null) {
@@ -125,7 +125,7 @@ public class SignupActivity extends AppCompatActivity {
                     mAuth.getUid()).child("userHimself").
                     push().
                     setValue(user);
-            new SharedPreferencesConnector(SignupActivity.this).setCurrentUser(user);
+            UserController.getInstance(this).setUserLocally(new User(email, name, 0,0,0, GameType.ANY, PlayerColor.ANY, AILevel.EASY));
 
         }
         System.out.println("user from signup activity     "+user);
