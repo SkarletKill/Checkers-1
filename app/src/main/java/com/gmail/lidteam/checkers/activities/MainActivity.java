@@ -45,12 +45,13 @@ public class MainActivity extends AppCompatActivity
         sharedPreferencesConnector = new SharedPreferencesConnector(MainActivity.this);
         staelIntroActivity();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
         dbLocalConnector = new DBLocalConnector(this);
 //        dbLocalConnector.deleteAll();
-        if(sharedPreferencesConnector.noUserLogged() || (mAuth.getCurrentUser() == null))  {
+//        if(sharedPreferencesConnector.noUserLogged() || (mAuth.getCurrentUser() == null))  {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
-        }
+//        }
         user = sharedPreferencesConnector.getCurrentUser();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

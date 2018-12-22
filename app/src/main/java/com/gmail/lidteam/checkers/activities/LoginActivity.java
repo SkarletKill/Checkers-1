@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
-import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
+import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -35,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     String email;
     String password;
+    UserController userController = UserController.getInstance(this);
 
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
@@ -113,9 +114,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-                SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector(this);
-                sharedPreferencesConnector.setCurrentUser(new User(email, "nick", 0,0,0));
-
+                userController.setUserLocally(new User(email, "nick", 0,0,0));
 //                 TODO: Implement successful signup logic here
 //                 By default we just finish the Activity and log them in automatically
                 this.finish();
@@ -138,8 +137,7 @@ public class LoginActivity extends AppCompatActivity {
             myRefUser.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
-                    new SharedPreferencesConnector(LoginActivity.this).setCurrentUser(user);
+                    userController.setUserLocally(dataSnapshot.getValue(User.class));
                     finish();
                 }
 
@@ -148,7 +146,6 @@ public class LoginActivity extends AppCompatActivity {
                     onLoginFailed();
                 }
             });
-
         }
     }
 
