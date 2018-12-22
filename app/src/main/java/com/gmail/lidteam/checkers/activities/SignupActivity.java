@@ -120,13 +120,15 @@ public class SignupActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference();
         if(mAuth.getUid() != null) {
+            System.out.println("FUCK");
             myRef.child(
                     mAuth.getUid()).child("userHimself").
                     push().
                     setValue(user);
+            new SharedPreferencesConnector(SignupActivity.this).setCurrentUser(user);
+
         }
-        System.out.println(user);
-        new SharedPreferencesConnector(SignupActivity.this).setCurrentUser(user);
+        System.out.println("user from signup activity     "+user);
         setResult(RESULT_OK, null);
         finish();
     }

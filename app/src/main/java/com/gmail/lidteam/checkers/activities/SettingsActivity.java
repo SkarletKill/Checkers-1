@@ -157,7 +157,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             DatabaseReference myRef = database.getReference();
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             if(mAuth.getUid() != null){
-                myRef.child(mAuth.getUid()).child("userHimself").setValue(user);
+                myRef.child(mAuth.getUid()).child("userHimself").removeValue();
+                myRef.child(mAuth.getUid()).child("userHimself").push().setValue(user);
+//                myRef.child(mAuth.getUid()).child("userHimself").setValue(user);
             }
         }
     }
