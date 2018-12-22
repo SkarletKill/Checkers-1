@@ -137,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
             myRefUser.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    userController.setUserLocally(dataSnapshot.getValue(User.class));
+                    userController.setUserLocally(dataSnapshot.getChildren().iterator().next().getValue(User.class));
                     finish();
                 }
 
@@ -147,6 +147,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
+
     }
 
     public void onLoginFailed() {

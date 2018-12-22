@@ -15,7 +15,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class UserController {
     private User user;
-    private DBConnector dbConnector;
     private SharedPreferencesConnector sharedPreferencesConnector;
     private static UserController ourInstance;
 
@@ -33,6 +32,10 @@ public class UserController {
 
     public User getUser() {
         return user;
+    }
+
+    public boolean noUserLoggedIn(){
+        return sharedPreferencesConnector.noUserLogged();
     }
 
     public void changePassword(String newPass){
@@ -57,7 +60,8 @@ public class UserController {
         DatabaseReference myRef = database.getReference();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         if (mAuth.getUid() != null) {
-            myRef.child(mAuth.getUid()).child("userHimself").setValue(user);
+            myRef.child(mAuth.getUid()).child("userHimself").removeValue();
+            myRef.child(mAuth.getUid()).child("userHimself").push().setValue(user);
         }
         sharedPreferencesConnector.setCurrentUser(user);
     }
@@ -86,6 +90,12 @@ public class UserController {
     public void setPreferredType(GameType type) {
         user.setPreferredType(type);
         saveAlteredUser();
+    }
+
+    public void logOut(){
+        sharedPreferencesConnector.unSetCurrentUser();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
     }
 
 }
