@@ -45,13 +45,16 @@ public class MainActivity extends AppCompatActivity
         sharedPreferencesConnector = new SharedPreferencesConnector(MainActivity.this);
         staelIntroActivity();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mAuth.signOut();
+//        mAuth.signOut();
+//        sharedPreferencesConnector.unSetCurrentUser();
         dbLocalConnector = new DBLocalConnector(this);
 //        dbLocalConnector.deleteAll();
 //        if(sharedPreferencesConnector.noUserLogged() || (mAuth.getCurrentUser() == null))  {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
 //        }
+
+        System.out.println(mAuth.getUid());
         user = sharedPreferencesConnector.getCurrentUser();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -113,8 +116,11 @@ public class MainActivity extends AppCompatActivity
         NavigationView nav = findViewById(R.id.nav_view);
         TextView userNicknameView = nav.getHeaderView(0).findViewById(R.id.user_nickname);
         TextView userEmailView = nav.getHeaderView(0).findViewById(R.id.user_email);
-        userNicknameView.setText(user.getNickname());
-        userEmailView.setText(user.getEmail());
+        if(user!=null){
+            userNicknameView.setText(user.getNickname());
+            userEmailView.setText(user.getEmail());
+        }
+
     }
 
     private void staelIntroActivity() {
