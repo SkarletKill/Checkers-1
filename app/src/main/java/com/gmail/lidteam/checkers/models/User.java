@@ -1,6 +1,7 @@
 package com.gmail.lidteam.checkers.models;
 
 public class User {
+    
     private String email;
     private String nickname;
     private int unbelievableWins;
@@ -9,6 +10,9 @@ public class User {
     private GameType preferredType;
     private PlayerColor preferredColor;
     private AILevel preferredAiLevel;
+
+    public User() {
+    }
 
     public User(String email, String nickname, int unbelievableWins, int epicFails, int draws) {
         this.email = email;

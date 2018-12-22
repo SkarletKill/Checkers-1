@@ -34,6 +34,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private User user;
+    private FirebaseAuth mAuth;
     private GameItemAdapter adapter;
     private SharedPreferencesConnector sharedPreferencesConnector;
     private DBLocalConnector dbLocalConnector;
@@ -44,9 +45,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         sharedPreferencesConnector = new SharedPreferencesConnector(MainActivity.this);
         staelIntroActivity();
+        mAuth = FirebaseAuth.getInstance();
         dbLocalConnector = new DBLocalConnector(this);
 //        dbLocalConnector.deleteAll();
-        if(sharedPreferencesConnector.noUserLogged())  {
+        if(sharedPreferencesConnector.noUserLogged() || (mAuth.getCurrentUser() == null))  {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onRestart() {
         super.onRestart();
+        user = sharedPreferencesConnector.getCurrentUser();
         NavigationView  nav = findViewById(R.id.nav_view);
         TextView userNicknameView = nav.getHeaderView(0).findViewById(R.id.user_nickname);
         TextView userEmailView = nav.getHeaderView(0).findViewById(R.id.user_email);

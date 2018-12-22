@@ -1,6 +1,5 @@
 package com.gmail.lidteam.checkers.activities;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,14 +13,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
-import com.gmail.lidteam.checkers.connectors.DBConnector;
 import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
 import com.gmail.lidteam.checkers.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,10 +33,7 @@ import butterknife.ButterKnife;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-    User user;
-    DBConnector dbConnector;
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
     String email;
     String password;
 
@@ -50,30 +51,13 @@ public class LoginActivity extends AppCompatActivity {
         
         mAuth = FirebaseAuth.getInstance();
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-
-                } else {
-                    // User is signed out
-
-                }
-
-            }
-        };
-
-
-
         _loginButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 login();
             }
         });
+
         _signupLink.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -87,12 +71,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-//    private void updateUI(FirebaseUser user) {
-//        if (user != null) {
-//          finish();
-//        }
-//    }
-
     public void login() {
         Log.d(TAG, "Login");
 
@@ -103,38 +81,33 @@ public class LoginActivity extends AppCompatActivity {
 
         _loginButton.setEnabled(false);
 
-//        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-//                R.style.AppTheme_Dark_Dialog);
-//        progressDialog.setIndeterminate(true);
-//        progressDialog.setMessage("Authenticating...");
-//        progressDialog.show();
+        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Authenticating...");
+        progressDialog.show();
 
         email = _emailText.getText().toString();
         password = _passwordText.getText().toString();
 
-        mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                progressDialog.dismiss();
                 if(task.isSuccessful()) {
                     onLoginSuccess();
-                }else
+                }else    {
                     onLoginFailed();
+                }
 
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, e.getMessage());
+                Toast.makeText(getBaseContext(),  e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         });
-
-//        DBConnector dbConnector = DBConnector.getInstance();
-//        dbConnector.getUser(email, password);
-//
-//        new android.os.Handler().postDelayed(
-//                new Runnable() {
-//                    public void run() {
-//                        // On complete call either onLoginSuccess or onLoginFailed
-//                        onLoginSuccess();
-//                        // onLoginFailed();
-////                        progressDialog.dismiss();
-//                    }
-//                }, 3000);
     }
 
 
@@ -160,12 +133,29 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
-        finish();
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        if (mAuth.getUid() != null) {
+            DatabaseReference myRefUser = database.getReference().
+                    child(mAuth.getUid()).child("userHimself");
+            myRefUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
+                    new SharedPreferencesConnector(LoginActivity.this).setCurrentUser(user);
+                    finish();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    onLoginFailed();
+                }
+            });
+
+        }
     }
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
         _loginButton.setEnabled(true);
     }
 
@@ -182,8 +172,8 @@ public class LoginActivity extends AppCompatActivity {
             _emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 6 || password.length() > 10) {
+            _passwordText.setError("between 6 and 10 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
