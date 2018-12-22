@@ -19,4 +19,19 @@
   <color name="beautifulDullBlue">#6a8a82</color>
   <color name="beautifulDullDeepRed">#a7414a</color>
 
+  <color name="deepRed">#cc304d</color>
+  <color name="deepGreen">#3bb32b</color>
+  <color name="deepBlue">#2b5fb3</color>
+  <color name="deepOrange">#c27221</color>
+
+  <color name="darkRed">#581421</color>
+  <color name="darkGreen">#174811</color>
+  <color name="darkBlue">#102343</color>
+  <color name="darkOrange">#40260c</color>
+
+  <color name="lightRed">#f56e88</color>
+  <color name="lightGreen">#79ca6f</color>
+  <color name="lightBlue">#6080b6</color>
+  <color name="lightOrange">#bf9a75</color>
+
 </resources>
