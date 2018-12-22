@@ -3,9 +3,8 @@ package com.gmail.lidteam.checkers.models;
 import android.content.Context;
 import android.graphics.Color;
 
-import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
+import com.gmail.lidteam.checkers.controllers.UserController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GameForDB {
@@ -22,21 +21,20 @@ public class GameForDB {
     private int textColor;
 
     public GameForDB(OneGame game, Context context) {
-        SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector(context);
-
         setGameDateTime(game.getStartTime().toString());
         setGameDuration(game.getDuration());
-        if(game.getBlack().equals(sharedPreferencesConnector.getCurrentUser())){
-            setGameOpponent(sharedPreferencesConnector.getCurrentUser().getNickname() + "(b)  VS  " + game.getWhite().getNickname() +  " (w)" );
+        User user = UserController.getInstance(context).getUser();
+        if(game.getBlack().equals(user)){
+            setGameOpponent(user.getNickname() + "(b)  VS  " + game.getWhite().getNickname() +  " (w)" );
         }
         else {
-            setGameOpponent(sharedPreferencesConnector.getCurrentUser().getNickname() + "(w)  VS  " + game.getWhite().getNickname() +  " (b)");
+            setGameOpponent(user.getNickname() + "(w)  VS  " + game.getWhite().getNickname() +  " (b)");
         }
         setGameType(game.getGameType().name());
         setGameWinner(game.getWinner().getNickname());
         setCheckersWinnerLeft(String.valueOf(game.getCheckersWinnerLeft()));
         setNumberOfMoves(String.valueOf(game.getMoves().size()));
-        CheckerColor color = game.getWinnerColor(sharedPreferencesConnector.getCurrentUser());
+        CheckerColor color = game.getWinnerColor(user);
         setBgColor(Color.parseColor(color.getColorCode()));
         setTextColor(Color.parseColor(color.getOppositeColorCode()));
         setMoves(game.getMoves());

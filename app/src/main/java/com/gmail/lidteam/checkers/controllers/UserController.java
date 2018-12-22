@@ -2,8 +2,6 @@ package com.gmail.lidteam.checkers.controllers;
 
 import android.content.Context;
 
-import com.gmail.lidteam.checkers.connectors.DBConnectionException;
-import com.gmail.lidteam.checkers.connectors.DBConnector;
 import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
 import com.gmail.lidteam.checkers.models.AILevel;
 import com.gmail.lidteam.checkers.models.GameType;
@@ -38,11 +36,6 @@ public class UserController {
         return sharedPreferencesConnector.noUserLogged();
     }
 
-    public void changePassword(String newPass){
-        // user.setNewPassword(newPassword);
-        saveAlteredUser();
-    }
-
     public void changeNickName(String newNickName){
         // user.setNewNickName(newNickName);
         user.setNickname(newNickName);
@@ -50,7 +43,9 @@ public class UserController {
     }
 
     public void clearStatictics(){
-        // user.clearStatictics();
+        user.setDraws(0);
+        user.setUnbelievableWins(0);
+        user.setEpicFails(0);
         saveAlteredUser();
     }
 
@@ -66,11 +61,20 @@ public class UserController {
         sharedPreferencesConnector.setCurrentUser(user);
     }
 
-    private void incFailures(){}
+    private void incFailures(){
+        user.setEpicFails(user.getEpicFails() + 1);
+        saveAlteredUser();
+    }
 
-    private void incWins(){}
+    private void incWins(){
+        user.setUnbelievableWins(user.getUnbelievableWins() + 1);
+        saveAlteredUser();
+    }
 
-    private void incDraws(){}
+    private void incDraws(){
+        user.setDraws(user.getDraws() + 1);
+        saveAlteredUser();
+    }
 
     public void setUserLocally(User user){
         this.user = user;
