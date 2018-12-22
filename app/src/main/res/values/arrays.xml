@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_checkers_color">
+        <item>White</item>
+        <item>Black</item>
+        <item>Any</item>
+    </string-array>
+    <string-array name="pref_ai_level">
+        <item>Easy</item>
+        <item>Middle</item>
+        <item>Hard</item>
+    </string-array>
+    <string-array name="pref_game_type">
+        <item>Classic</item>
+        <item>Giveaway</item>
+        <item>Any</item>
+    </string-array>
+
+    <string-array name="listValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+</resources>

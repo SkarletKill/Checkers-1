@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <EditTextPreference android:title="Your Name"
+            android:key="username" />
+        <ListPreference
+            android:title="Preferred checkers color"
+            android:key="pref_checker_color"
+            android:defaultValue="0"
+            android:entries="@array/pref_checkers_color"
+            android:entryValues="@array/listValues" />
+        <ListPreference
+            android:title="Preferred AI level"
+            android:key="pref_ai_level"
+            android:defaultValue="0"
+            android:entries="@array/pref_ai_level"
+            android:entryValues="@array/listValues" />
+        <ListPreference
+            android:title="Preferred game type"
+            android:key="pref_game_type"
+            android:defaultValue="0"
+            android:entries="@array/pref_game_type"
+            android:entryValues="@array/listValues" />
+</PreferenceScreen>

@@ -85,4 +85,16 @@ public class User {
     public void setDraws(int draws) {
         this.draws = draws;
     }
+
+    public void setPreferredType(GameType preferredType) {
+        this.preferredType = preferredType;
+    }
+
+    public void setPreferredColor(PlayerColor preferredColor) {
+        this.preferredColor = preferredColor;
+    }
+
+    public void setPreferredAiLevel(AILevel preferredAiLevel) {
+        this.preferredAiLevel = preferredAiLevel;
+    }
 }

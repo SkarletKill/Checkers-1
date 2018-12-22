@@ -26,7 +26,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -109,8 +108,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
