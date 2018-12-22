@@ -11,7 +11,7 @@ public class OneGame {
     private User black;
     private Date startTime;
     private Date endTame;
-    private List<String> moves;
+    private List<Move> moves;
     private Map<String, Cell> board;
     private int whites;
     private int blacks;
