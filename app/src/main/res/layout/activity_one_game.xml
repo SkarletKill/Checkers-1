@@ -6,4 +6,92 @@
     android:layout_height="match_parent"
     tools:context=".activities.OneGameActivity">
 
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="121dp"
+        android:layout_height="26dp"
+        android:ems="10"
+        android:inputType="time"
+        android:selectAllOnFocus="false"
+        android:singleLine="false"
+        android:text="Timer"
+        tools:layout_editor_absoluteX="132dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <TextView
+        android:id="@+id/whites"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="whites"
+        android:textAlignment="viewStart"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="26dp" />
+
+    <TextView
+        android:id="@+id/game_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GameType"
+        android:textAlignment="center"
+        tools:layout_editor_absoluteX="158dp"
+        tools:layout_editor_absoluteY="26dp" />
+
+    <TextView
+        android:id="@+id/blacks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="blacks"
+        android:textAlignment="textEnd"
+        tools:layout_editor_absoluteX="327dp"
+        tools:layout_editor_absoluteY="26dp" />
+
+    <TextView
+        android:id="@+id/username1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User1"
+        android:textAlignment="center"
+        tools:layout_editor_absoluteX="57dp"
+        tools:layout_editor_absoluteY="52dp" />
+
+    <TextView
+        android:id="@+id/username2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User2"
+        android:textAlignment="textStart"
+        tools:layout_editor_absoluteX="290dp"
+        tools:layout_editor_absoluteY="52dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80sp"
+        android:layout_marginBottom="60sp"
+        android:orientation="vertical">
+
+        <GridView
+            android:id="@+id/gridView1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnWidth="100dp"
+            android:gravity="center"
+            android:horizontalSpacing="5dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="35dp"
+            android:visibility="visible">
+
+        </GridView>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="155dp"
+        android:layout_height="wrap_content"
+        android:text="I surrender"
+        tools:layout_editor_absoluteX="115dp"
+        tools:layout_editor_absoluteY="458dp" />
+
 </android.support.constraint.ConstraintLayout>

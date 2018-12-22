@@ -145,7 +145,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_start_offline) {
-
+            Intent offlineGame = new Intent(this, OneGameActivity.class);
+            startActivity(offlineGame);
         } else if (id == R.id.nav_start_bluetooth) {
 
         } else if (id == R.id.nav_start_online) {
