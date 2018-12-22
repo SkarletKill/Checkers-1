@@ -4,82 +4,110 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.OneGameActivity">
+    android:background="@color/aluminum"
+    tools:context=".activities.OneGameActivity"
+    tools:layout_editor_absoluteY="81dp">
 
     <EditText
         android:id="@+id/editText"
-        android:layout_width="121dp"
-        android:layout_height="26dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="2dp"
         android:ems="10"
         android:inputType="time"
         android:selectAllOnFocus="false"
         android:singleLine="false"
         android:text="Timer"
-        tools:layout_editor_absoluteX="132dp"
-        tools:layout_editor_absoluteY="0dp" />
+        android:textAlignment="center"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/game_type"
+        app:layout_constraintEnd_toStartOf="@+id/blacks"
+        app:layout_constraintStart_toEndOf="@+id/whites"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/whites"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="11dp"
+        android:layout_marginEnd="47dp"
+        android:layout_marginStart="33dp"
         android:text="whites"
         android:textAlignment="viewStart"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="26dp" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/username1"
+        app:layout_constraintEnd_toStartOf="@+id/editText"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/game_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="37dp"
         android:text="GameType"
         android:textAlignment="center"
-        tools:layout_editor_absoluteX="158dp"
-        tools:layout_editor_absoluteY="26dp" />
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/editText"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/blacks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="11dp"
+        android:layout_marginEnd="28dp"
         android:text="blacks"
         android:textAlignment="textEnd"
-        tools:layout_editor_absoluteX="327dp"
-        tools:layout_editor_absoluteY="26dp" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/username2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/editText" />
 
     <TextView
         android:id="@+id/username1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="9dp"
         android:text="User1"
         android:textAlignment="center"
-        tools:layout_editor_absoluteX="57dp"
-        tools:layout_editor_absoluteY="52dp" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintStart_toStartOf="@+id/whites" />
 
     <TextView
         android:id="@+id/username2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="9dp"
         android:text="User2"
         android:textAlignment="textStart"
-        tools:layout_editor_absoluteX="290dp"
-        tools:layout_editor_absoluteY="52dp" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="@+id/blacks" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="80sp"
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginBottom="60sp"
-        android:orientation="vertical">
+        android:layout_marginTop="70dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/button2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/game_type">
 
         <GridView
             android:id="@+id/gridView1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:columnWidth="100dp"
-            android:gravity="center"
-            android:horizontalSpacing="5dp"
-            android:numColumns="auto_fit"
+            android:horizontalSpacing="0dp"
+            android:verticalSpacing="0dp"
+            android:numColumns="8"
+            android:columnWidth="60sp"
             android:stretchMode="columnWidth"
-            android:verticalSpacing="35dp"
             android:visibility="visible">
 
         </GridView>
@@ -90,8 +118,10 @@
         android:id="@+id/button2"
         android:layout_width="155dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="15sp"
         android:text="I surrender"
-        tools:layout_editor_absoluteX="115dp"
-        tools:layout_editor_absoluteY="458dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
