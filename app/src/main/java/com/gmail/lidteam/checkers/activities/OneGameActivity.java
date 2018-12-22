@@ -1,11 +1,13 @@
 package com.gmail.lidteam.checkers.activities;
 
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gmail.lidteam.checkers.R;
@@ -14,7 +16,12 @@ import com.gmail.lidteam.checkers.controllers.GameController;
 import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.CheckerColor;
 import com.gmail.lidteam.checkers.models.CheckerType;
+import com.gmail.lidteam.checkers.models.GameType;
+import com.gmail.lidteam.checkers.models.OneGame;
+import com.gmail.lidteam.checkers.models.PlayerColor;
+import com.gmail.lidteam.checkers.models.User;
 
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,16 +29,18 @@ public class OneGameActivity extends AppCompatActivity {
     private TextView username;
     private TextView opponent;
     private TextView timer;
-    private TextView myCheckers;
-    private TextView enemyCheckers;
+    private TextView whiteCheckers;
+    private TextView blackCheckers;
     private TextView gameType;
     private GridView board;
     private Button btn_ISurrender;
 
+    private OneGame gameModel;
     private GameController gameController;
     private UserController userController;
 
-    private TextView mSelectText;
+    private User userI;
+    private User userEnemy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,24 +50,64 @@ public class OneGameActivity extends AppCompatActivity {
         timer = (TextView) findViewById(R.id.timer);
         createTimer();
 
-//        userController = UserController.getInstance(this).getUser();
+        username = (TextView) findViewById(R.id.username1);
+        opponent = (TextView) findViewById(R.id.username2);
+        gameType = (TextView) findViewById(R.id.game_type);
+        whiteCheckers = (TextView) findViewById(R.id.whites);
+        blackCheckers = (TextView) findViewById(R.id.blacks);
 
-        mSelectText = (TextView) findViewById(R.id.game_type);
+        userI = UserController.getInstance(this).getUser();
+
+        createGame();
+
         board = (GridView) findViewById(R.id.gridView1);
         board.setAdapter(new ImageAdapter(this));
-        board.setOnItemClickListener(gridviewOnItemClickListener);
+        board.setOnItemClickListener(gridViewOnItemClickListener);
 
         btn_ISurrender = (Button) findViewById(R.id.btn_surrender);
     }
 
-    private GridView.OnItemClickListener gridviewOnItemClickListener = new GridView.OnItemClickListener() {
+    private GridView.OnItemClickListener gridViewOnItemClickListener = new GridView.OnItemClickListener() {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View v, int position,
                                 long id) {
             // TODO Auto-generated method stub
+            // Get the selected item text
+            String selectedItem = parent.getItemAtPosition(position).toString();
+
+            // Display the selected item text to app interface
+//            tv_message.setText("Selected item : " + selectedItem);
+
+            // Get the current selected view as a TextView
+            ImageView iv = (ImageView) v;
+
+            // Set the current selected item background color
+            iv.setBackgroundColor(Color.parseColor("#FFFFFF"));
+
+            // Set the current selected item text color
+//            iv.setTextColor(Color.BLUE);
+
+            // Get the last selected View from GridView
+//            ImageView previousSelectedView = (ImageView) board.getChildAt(previousSelectedPosition);
+
+            // If there is a previous selected view exists
+//            if (previousSelectedPosition != -1)
+//            {
+//                // Set the last selected View to deselect
+//                previousSelectedView.setSelected(false);
+//
+//                // Set the last selected View background color as deselected item
+//                previousSelectedView.setBackgroundColor(Color.parseColor("#FFFF4F25"));
+//
+//                // Set the last selected View text color as deselected item
+//                previousSelectedView.setTextColor(Color.DKGRAY);
+//            }
+
+            // Set the current selected view position as previousSelectedPosition
+//            previousSelectedPosition = position;
             // выводим номер позиции
-            mSelectText.setText(String.valueOf(position));
+            gameType.setText(String.valueOf(position));     // need change
         }
     };
 
@@ -96,6 +145,26 @@ public class OneGameActivity extends AppCompatActivity {
             }
 
         }, 0, 1000);
+    }
+
+    private void createGame() {
+        GameType gameType = userI.getPreferredType().equals(GameType.GIVEAWAY) ? GameType.GIVEAWAY : GameType.CLASSIC;
+        PlayerColor playerColor = userI.getPreferredColor().equals(PlayerColor.BLACK) ? PlayerColor.BLACK : PlayerColor.WHITE;
+
+        if (userI.getPreferredColor().equals(PlayerColor.ANY)) {
+            int rand = new Random().nextInt(2);
+            playerColor = rand % 2 == 0 ? PlayerColor.BLACK : PlayerColor.WHITE;
+        }
+        if (userI.getPreferredType().equals(GameType.ANY)) {
+            int rand = new Random().nextInt(2);
+            gameType = rand % 2 == 0 ? GameType.GIVEAWAY : GameType.CLASSIC;
+        }
+
+        username.setText(userI.getNickname());
+
+        gameModel = new OneGame(gameType,
+                playerColor.equals(PlayerColor.WHITE) ? userI : userEnemy,
+                playerColor.equals(PlayerColor.WHITE) ? userEnemy : userI);
     }
 
     public void onGridItemClick() {

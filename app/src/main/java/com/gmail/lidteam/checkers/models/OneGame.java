@@ -2,6 +2,7 @@ package com.gmail.lidteam.checkers.models;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,24 +18,48 @@ public class OneGame {
     private int blacks;
     private User winner = null;
 
-    public OneGame(GameType gameType, User white, User black, Map<String, Cell> board) {
+    public OneGame(GameType gameType, User white, User black) {
         this.gameType = gameType;
         this.white = white;
         this.black = black;
         this.startTime = new Date();
         this.moves = new ArrayList<>();
-        this.board = board;
+//        this.board = board;
+        this.board = new HashMap<>();
+        this.whites = 12;
+        this.blacks = 12;
+
+        initDesk();
+        placeCheckers();
     }
 
-    public void endGame(){
+    public void endGame() {
         endTame = new Date();
     }
 
-
     private void initDesk() {
+        for (char i = 'a'; i < 'i'; i++) {
+            for (int j = 1; j < 9; j++) {
+                String key = String.valueOf(i) + j;
+                board.put(key, new Cell(key, null));
+            }
+        }
     }
 
     private void placeCheckers() {
+        String[] userCheckersStartPositions = {"a2", "a4", "a6", "a8",
+                "b1", "b3", "b5", "b7",
+                "c2", "c4", "c6", "c8"};
+        String[] opponentCheckersStartPositions = {"f1", "f3", "f5", "f7",
+                "g2", "g4", "g6", "g8",
+                "h1", "h3", "h5", "h7"};
+
+        for (String checkerPosition : userCheckersStartPositions) {
+            board.get(checkerPosition).setChecker(new Checker(CheckerColor.WHITE, CheckerType.SIMPLE, board.get(checkerPosition)));
+        }
+        for (String checkerPosition : opponentCheckersStartPositions) {
+            board.get(checkerPosition).setChecker(new Checker(CheckerColor.BLACK, CheckerType.SIMPLE, board.get(checkerPosition)));
+        }
     }
 
     public Checker getCellContents(String coordinates) {
@@ -45,7 +70,8 @@ public class OneGame {
         return false;
     }
 
-    public void makeMove(String coordinates){}
+    public void makeMove(String coordinates) {
+    }
 
     private boolean checkRequiredCombat() {
         return false;
@@ -63,9 +89,11 @@ public class OneGame {
         return false;
     }
 
-    private void addChecker(Cell cell, CheckerColor color, CheckerType type){}
+    private void addChecker(Cell cell, CheckerColor color, CheckerType type) {
+    }
 
-    private void deleteChecker(Cell cell){}
+    private void deleteChecker(Cell cell) {
+    }
 
     List<Move> getMoves() {
         return moves;
@@ -107,7 +135,7 @@ public class OneGame {
         return winner;
     }
 
-    String getDuration(){
+    String getDuration() {
         long diff = endTame.getTime() - startTime.getTime();
         long diffSeconds = diff / 1000 % 60;
         long diffMinutes = diff / (60 * 1000) % 60;
@@ -115,16 +143,16 @@ public class OneGame {
         return diffHours + ":" + diffMinutes + ":" + diffSeconds;
     }
 
-    public int getCheckersWinnerLeft(){
-        if(white.equals(winner)){
+    public int getCheckersWinnerLeft() {
+        if (white.equals(winner)) {
             return whites;
-        } else if(winner.equals(black))
+        } else if (winner.equals(black))
             return blacks;
         else return 0;
     }
 
-    CheckerColor getWinnerColor(User user){
-        if(user.equals(winner)) return CheckerColor.WHITE;
+    CheckerColor getWinnerColor(User user) {
+        if (user.equals(winner)) return CheckerColor.WHITE;
         else return CheckerColor.BLACK;
     }
 
