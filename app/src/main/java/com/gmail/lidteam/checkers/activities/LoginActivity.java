@@ -139,6 +139,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
+                    System.out.println("user form public void onLoginSuccess() {     " + user);
                     new SharedPreferencesConnector(LoginActivity.this).setCurrentUser(user);
                     finish();
                 }
