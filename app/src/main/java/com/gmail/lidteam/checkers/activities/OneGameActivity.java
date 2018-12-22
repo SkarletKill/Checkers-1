@@ -84,6 +84,7 @@ public class OneGameActivity extends AppCompatActivity {
 
             // Set the current selected item background color
             iv.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            iv.setImageResource(R.drawable.checker_black);
 
             // Set the current selected item text color
 //            iv.setTextColor(Color.BLUE);

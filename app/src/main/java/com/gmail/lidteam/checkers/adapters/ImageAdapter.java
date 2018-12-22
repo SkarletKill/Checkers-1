@@ -1,6 +1,8 @@
 package com.gmail.lidteam.checkers.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -19,12 +21,16 @@ public class ImageAdapter extends BaseAdapter {
         mContext = c;
     }
 
+//    public ImageAdapter(Context c, ) {
+//        mContext = c;
+//    }
+
     public int getCount() {
-        return mThumbIds.length;
+        return mCheckersIds.length;
     }
 
     public Object getItem(int position) {
-        return mThumbIds[position];
+        return mCheckersIds[position];
     }
 
     public long getItemId(int position) {
@@ -44,12 +50,14 @@ public class ImageAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        imageView.setImageResource(mThumbIds[position]);
+        imageView.setBackgroundResource(mBackgroundIds[position]);
+        imageView.setImageResource(mCheckersIds[position]);
         return imageView;
     }
 
     // references to our images
-    public	Integer[] mThumbIds = generateDesk();
+    public	Integer[] mBackgroundIds = generateDesk();
+    public	Integer[] mCheckersIds = generateCheckers();
 
     private Integer[] generateDesk(){
         Integer[] startBlack = { R.drawable.black_square_256, R.drawable.white_square_256, R.drawable.black_square_256, R.drawable.white_square_256,
@@ -65,5 +73,25 @@ public class ImageAdapter extends BaseAdapter {
 
         Integer[] desk = deskList.toArray(new Integer[]{});
         return desk;
+    }
+
+    private Integer[] generateCheckers(){
+        Integer[] startBlack = { R.drawable.checker_black, R.drawable.empty_image, R.drawable.checker_black,R.drawable.empty_image, R.drawable.checker_black, R.drawable.empty_image, R.drawable.checker_black, R.drawable.empty_image,
+                R.drawable.empty_image, R.drawable.checker_black,R.drawable.empty_image, R.drawable.checker_black, R.drawable.empty_image, R.drawable.checker_black, R.drawable.empty_image, R.drawable.checker_black,
+                R.drawable.checker_black, R.drawable.empty_image, R.drawable.checker_black,R.drawable.empty_image, R.drawable.checker_black, R.drawable.empty_image, R.drawable.checker_black, R.drawable.empty_image};
+
+        Integer[] startWhite = { R.drawable.empty_image, R.drawable.checker_white, R.drawable.empty_image, R.drawable.checker_white,R.drawable.empty_image, R.drawable.checker_white, R.drawable.empty_image, R.drawable.checker_white,
+                R.drawable.checker_white,R.drawable.empty_image, R.drawable.checker_white, R.drawable.empty_image, R.drawable.checker_white, R.drawable.empty_image, R.drawable.checker_white, R.drawable.empty_image,
+                R.drawable.empty_image, R.drawable.checker_white, R.drawable.empty_image, R.drawable.checker_white,R.drawable.empty_image, R.drawable.checker_white, R.drawable.empty_image, R.drawable.checker_white};
+
+        ArrayList<Integer> checkersList = new ArrayList<>();
+        checkersList.addAll(Arrays.asList(startBlack));
+        for (int i = 0; i < 16; i++) {
+            checkersList.add(R.drawable.empty_image);
+        }
+        checkersList.addAll(Arrays.asList(startWhite));
+
+        Integer[] checkers = checkersList.toArray(new Integer[]{});
+        return checkers;
     }
 }
