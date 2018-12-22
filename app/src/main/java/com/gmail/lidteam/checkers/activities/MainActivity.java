@@ -44,9 +44,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         sharedPreferencesConnector = new SharedPreferencesConnector(MainActivity.this);
         staelIntroActivity();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         dbLocalConnector = new DBLocalConnector(this);
 //        dbLocalConnector.deleteAll();
-        if(sharedPreferencesConnector.noUserLogged())  {
+        if(sharedPreferencesConnector.noUserLogged() || (mAuth.getCurrentUser() == null))  {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        setUserInfo();
         showHistory();
     }
 
@@ -101,12 +103,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onRestart() {
         super.onRestart();
-        NavigationView  nav = findViewById(R.id.nav_view);
+        setUserInfo();
+        showHistory();
+    }
+
+    private void setUserInfo() {
+        user = sharedPreferencesConnector.getCurrentUser();
+        NavigationView nav = findViewById(R.id.nav_view);
         TextView userNicknameView = nav.getHeaderView(0).findViewById(R.id.user_nickname);
         TextView userEmailView = nav.getHeaderView(0).findViewById(R.id.user_email);
         userNicknameView.setText(user.getNickname());
         userEmailView.setText(user.getEmail());
-        showHistory();
     }
 
     private void staelIntroActivity() {
@@ -137,7 +144,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -152,7 +158,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_start_online) {
 
         } else if (id == R.id.nav_settings) {
-
+            Intent settingsActivity = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(settingsActivity);
         } else if (id == R.id.nav_intro) {
             Intent i = new Intent(MainActivity.this, IntroActivity.class);
             startActivity(i);
@@ -175,7 +182,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
     class GameItemAdapter extends BaseAdapter {
 
@@ -247,7 +253,6 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
-
 
     @SuppressWarnings("unused")
     public void showErrorMessage(View view, String errorMSG){

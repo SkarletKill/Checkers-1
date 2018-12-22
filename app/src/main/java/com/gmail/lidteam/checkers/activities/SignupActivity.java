@@ -14,12 +14,17 @@ import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
+import com.gmail.lidteam.checkers.models.AILevel;
+import com.gmail.lidteam.checkers.models.GameType;
+import com.gmail.lidteam.checkers.models.PlayerColor;
 import com.gmail.lidteam.checkers.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,7 +32,6 @@ import butterknife.ButterKnife;
 public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
     @BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
@@ -42,21 +46,6 @@ public class SignupActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
 
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    onSignupSuccess();
-
-                } else {
-                    // User is signed out
-
-                }
-
-            }
-        };
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,47 +74,59 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         _signupButton.setEnabled(false);
-
-//        final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this,
-//                R.style.AppTheme_Dark_Dialog);
-//        progressDialog.setIndeterminate(true);
-//        progressDialog.setMessage("Creating Account...");
-//        progressDialog.show();
+        final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Creating Account...");
+        progressDialog.show();
 
         final String name = _nameText.getText().toString();
         final String email = _emailText.getText().toString();
         final String password = _passwordText.getText().toString();
-        final String reEnterPassword = _reEnterPasswordText.getText().toString();
 
         new SharedPreferencesConnector(this).setCurrentUser(new User(email, name, 0,0,0));
-        // TODO: Implement your own signup logic here.
 
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        mAuth.createUserWithEmailAndPassword(email, password).
+                addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.dismiss();
+                        if(task.isSuccessful())
+                        {
+                            Log.d(TAG, "task.isSuccessful() true");
+                            onSignupSuccess(email, name);
+                        }
+                        else  {
+                            Log.d(TAG, "task.isSuccessful() false");
+                            onSignupFailed();
+                        }
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful())
-                {
-                    onSignupSuccess();
-                }
-                else
-                    onSignupFailed();
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, e.getMessage());
+                Toast.makeText(getBaseContext(),  e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-
-//        new android.os.Handler().postDelayed(
-//                new Runnable() {
-//                    public void run() {
-//
-//                        onSignupSuccess();
-//                        // onSignupFailed();
-//                        progressDialog.dismiss();
-//                    }
-//                }, 3000);
     }
 
 
-    public void onSignupSuccess() {
+    public void onSignupSuccess(String email, String name) {
         _signupButton.setEnabled(true);
+        User user = new User(email,
+                name, 0,0,0, GameType.ANY, PlayerColor.ANY, AILevel.EASY);
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference();
+        if(mAuth.getUid() != null) {
+            myRef.child(
+                    mAuth.getUid()).child("userHimself").
+                    push().
+                    setValue(user);
+        }
+        System.out.println(user);
+        new SharedPreferencesConnector(SignupActivity.this).setCurrentUser(user);
         setResult(RESULT_OK, null);
         finish();
     }
