@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.adapters.ImageAdapter;
 import com.gmail.lidteam.checkers.controllers.GameController;
+import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.CheckerColor;
 import com.gmail.lidteam.checkers.models.CheckerType;
 
@@ -20,7 +21,7 @@ import java.util.TimerTask;
 public class OneGameActivity extends AppCompatActivity {
     private TextView username;
     private TextView opponent;
-    private Timer timer;
+    private TextView timer;
     private TextView myCheckers;
     private TextView enemyCheckers;
     private TextView gameType;
@@ -28,6 +29,7 @@ public class OneGameActivity extends AppCompatActivity {
     private Button btn_ISurrender;
 
     private GameController gameController;
+    private UserController userController;
 
     private TextView mSelectText;
 
@@ -36,12 +38,17 @@ public class OneGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_one_game);
 
+        timer = (TextView) findViewById(R.id.timer);
         createTimer();
-        mSelectText = (TextView) findViewById(R.id.game_type);
-        GridView gridview = (GridView) findViewById(R.id.gridView1);
-        gridview.setAdapter(new ImageAdapter(this));
 
-        gridview.setOnItemClickListener(gridviewOnItemClickListener);
+//        userController = UserController.getInstance(this).getUser();
+
+        mSelectText = (TextView) findViewById(R.id.game_type);
+        board = (GridView) findViewById(R.id.gridView1);
+        board.setAdapter(new ImageAdapter(this));
+        board.setOnItemClickListener(gridviewOnItemClickListener);
+
+        btn_ISurrender = (Button) findViewById(R.id.btn_surrender);
     }
 
     private GridView.OnItemClickListener gridviewOnItemClickListener = new GridView.OnItemClickListener() {
@@ -74,12 +81,11 @@ public class OneGameActivity extends AppCompatActivity {
 
                     @Override
                     public void run() {
-                        TextView tv = (TextView) findViewById(R.id.timer);
-                        tv.setText(fixTime(String.valueOf(minutes[0])) + " : " + fixTime(String.valueOf(seconds[0])));
+                        timer.setText(fixTime(String.valueOf(minutes[0])) + " : " + fixTime(String.valueOf(seconds[0])));
                         seconds[0] += 1;
 
                         if (seconds[0] == 60) {
-                            tv.setText(fixTime(String.valueOf(minutes[0])) + " : " + fixTime(String.valueOf(seconds[0])));
+                            timer.setText(fixTime(String.valueOf(minutes[0])) + " : " + fixTime(String.valueOf(seconds[0])));
 
                             seconds[0] = 0;
                             minutes[0] = minutes[0] + 1;
