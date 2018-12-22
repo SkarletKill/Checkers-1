@@ -43,6 +43,6 @@ public class OneGameActivity extends AppCompatActivity {
     }
     public void changeBackgroundColor(){}
 
-    // test github
+
 
 }
