@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.adapters.ImageAdapter;
+import com.gmail.lidteam.checkers.connectors.OfflineOpponentConnector;
+import com.gmail.lidteam.checkers.connectors.OpponentConnector;
 import com.gmail.lidteam.checkers.controllers.GameController;
 import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.CheckerColor;
@@ -37,7 +39,7 @@ public class OneGameActivity extends AppCompatActivity {
 
     private OneGame gameModel;
     private GameController gameController;
-    private UserController userController;
+    private OpponentConnector opponentConnector;
 
     private User userI;
     private User userEnemy;
@@ -57,8 +59,11 @@ public class OneGameActivity extends AppCompatActivity {
         blackCheckers = (TextView) findViewById(R.id.blacks);
 
         userI = UserController.getInstance(this).getUser();
-
+        // hardcoded enemy (need to change)
+        userEnemy = new User("AI@chekers.game", userI.getPreferredAiLevel().name(), 0, 0, 0);
         createGame();
+        opponentConnector = new OfflineOpponentConnector();
+        gameController = new GameController(this, gameModel, opponentConnector);
 
         board = (GridView) findViewById(R.id.gridView1);
         board.setAdapter(new ImageAdapter(this));
@@ -76,8 +81,8 @@ public class OneGameActivity extends AppCompatActivity {
             String coordinates = parsePosition(position);
             gameType.setText(coordinates);     // need change
 
-            // Get the current selected view as a TextView
-//            ImageView iv = (ImageView) v;
+            ImageView iv = (ImageView) v;
+            gameController.handleCellClick(parent, iv, coordinates, id);
 
             // Set the current selected item background color
 //            iv.setImageResource(R.drawable.checker_black);
@@ -140,10 +145,10 @@ public class OneGameActivity extends AppCompatActivity {
                 playerColor.equals(PlayerColor.WHITE) ? userEnemy : userI);
     }
 
-    private String parsePosition(int pos){
+    private String parsePosition(int pos) {
         int y = pos / 8;
         int x = 1 + pos % 8;
-        return String.valueOf((char)('h' - y)) + x;
+        return String.valueOf((char) ('h' - y)) + x;
     }
 
     public void onGridItemClick() {

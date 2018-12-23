@@ -1,6 +1,6 @@
 package com.gmail.lidteam.checkers.models;
 
-class Cell {
+public class Cell {
     private String coordinates;
     private Checker checker;
 
