@@ -1,6 +1,5 @@
 package com.gmail.lidteam.checkers.activities;
 
-import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -28,8 +27,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class OneGameActivity extends AppCompatActivity {
-    private TextView username;
-    private TextView opponent;
+    private TextView playerWhite;
+    private TextView playerBlack;
     private TextView timer;
     private TextView whiteCheckers;
     private TextView blackCheckers;
@@ -52,8 +51,8 @@ public class OneGameActivity extends AppCompatActivity {
         timer = (TextView) findViewById(R.id.timer);
         createTimer();
 
-        username = (TextView) findViewById(R.id.username1);
-        opponent = (TextView) findViewById(R.id.username2);
+        playerWhite = (TextView) findViewById(R.id.username1);
+        playerBlack = (TextView) findViewById(R.id.username2);
         gameType = (TextView) findViewById(R.id.game_type);
         whiteCheckers = (TextView) findViewById(R.id.whites);
         blackCheckers = (TextView) findViewById(R.id.blacks);
@@ -82,7 +81,7 @@ public class OneGameActivity extends AppCompatActivity {
             gameType.setText(coordinates);     // need change
 
             ImageView iv = (ImageView) v;
-            gameController.handleCellClick(parent, iv, coordinates, id);
+//            gameController.handleCellClick(parent, iv, position, id);
 
             // Set the current selected item background color
 //            iv.setImageResource(R.drawable.checker_black);
@@ -138,7 +137,9 @@ public class OneGameActivity extends AppCompatActivity {
             gameType = rand % 2 == 0 ? GameType.GIVEAWAY : GameType.CLASSIC;
         }
 
-        username.setText(userI.getNickname());
+        playerWhite.setText(playerColor.equals(PlayerColor.WHITE) ? userI.getNickname() : userEnemy.getNickname());
+        playerBlack.setText(playerColor.equals(PlayerColor.BLACK) ? userI.getNickname() : userEnemy.getNickname());
+        this.gameType.setText(gameType.name());
 
         gameModel = new OneGame(gameType,
                 playerColor.equals(PlayerColor.WHITE) ? userI : userEnemy,
@@ -146,9 +147,9 @@ public class OneGameActivity extends AppCompatActivity {
     }
 
     private String parsePosition(int pos) {
-        int y = pos / 8;
-        int x = 1 + pos % 8;
-        return String.valueOf((char) ('h' - y)) + x;
+        int y = 8 - pos / 8;
+        int x = pos % 8;
+        return String.valueOf((char) ('a' + x)) + y;
     }
 
     public void onGridItemClick() {

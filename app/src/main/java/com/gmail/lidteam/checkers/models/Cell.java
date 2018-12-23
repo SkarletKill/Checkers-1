@@ -24,4 +24,8 @@ public class Cell {
     public void setChecker(Checker checker) {
         this.checker = checker;
     }
+
+    public void deleteChecker(){
+        this.checker = null;
+    }
 }
