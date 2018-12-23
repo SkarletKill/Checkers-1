@@ -60,6 +60,7 @@ public class GameController {
                 iv.setImageResource((moveWhite)? R.drawable.checker_white: R.drawable.checker_black);
 
                 activeChecker = null;   // if !requiredCombat
+                return true;
             } else {
                 int pos = convertCoord(activeChecker.getPosition());
                 ImageView imageView = (ImageView) parent.getChildAt(pos);
@@ -221,11 +222,9 @@ public class GameController {
     private boolean checkRankForMove(Cell cell) {
         if (activeChecker.getType().equals(CheckerType.SIMPLE)) {    // simple white or black
             if (checkPossibilityMoveTo(cell, activeChecker)) {
-                activeChecker.getPosition().deleteChecker();
                 if (getCoordY(cell) == '8') {
                     activeChecker.setType(CheckerType.SUPER);
                 }
-                cell.setChecker(activeChecker);
                 return true;
             } else {
                 if (requiredCombat) System.out.println("Required Combat!");
@@ -233,8 +232,8 @@ public class GameController {
             }
         } else if (activeChecker.getType().equals(CheckerType.SUPER)) {   // Super checker
             if (checkPossibilityMoveTo(cell, activeChecker)) {
-                activeChecker.getPosition().deleteChecker();
-                cell.setChecker(activeChecker);
+//                activeChecker.getPosition().deleteChecker();
+//                cell.setChecker(activeChecker);
                 return true;
             } else {
                 if (requiredCombat) System.out.println("Required Combat!");
@@ -391,7 +390,9 @@ public class GameController {
         return false;
     }
 
-    private void changeUser() {
+    public void changePlayer() {
+        moveWhite = !moveWhite;
+        activeUser = (moveWhite)? game.getWhite() : game.getBlack();
     }
 
     private void unselectChecker() {
