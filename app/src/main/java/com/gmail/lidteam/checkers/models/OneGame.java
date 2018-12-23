@@ -47,12 +47,12 @@ public class OneGame {
     }
 
     private void placeCheckers() {
-        String[] userCheckersStartPositions = {"a2", "a4", "a6", "a8",
-                "b1", "b3", "b5", "b7",
-                "c2", "c4", "c6", "c8"};
-        String[] opponentCheckersStartPositions = {"f1", "f3", "f5", "f7",
-                "g2", "g4", "g6", "g8",
-                "h1", "h3", "h5", "h7"};
+        String[] userCheckersStartPositions = {"b1", "d1", "f1", "h1",
+                "a2", "c2", "e2", "g2",
+                "b3", "d3", "f3", "h3"};
+        String[] opponentCheckersStartPositions = {"a6", "c6", "e6", "g6",
+                "b7", "d7", "g7", "h7",
+                "a8", "c8", "e8", "g8"};
 
         for (String checkerPosition : userCheckersStartPositions) {
             board.get(checkerPosition).setChecker(new Checker(CheckerColor.WHITE, CheckerType.SIMPLE, board.get(checkerPosition)));

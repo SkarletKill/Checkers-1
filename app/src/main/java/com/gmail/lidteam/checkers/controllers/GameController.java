@@ -49,7 +49,17 @@ public class GameController {
             }
         } else {
             if (handleSecondClick(cell)) {
+                activeChecker.getPosition().deleteChecker();
+                int pos = convertCoord(activeChecker.getPosition());
+                ImageView imageView = (ImageView) parent.getChildAt(pos);
+                imageView.setBackgroundResource(R.drawable.black_square_128);
+                imageView.setImageResource(R.drawable.empty_image);
 
+                cell.setChecker(activeChecker);
+                activeChecker.setPosition(cell);
+                iv.setImageResource((moveWhite)? R.drawable.checker_white: R.drawable.checker_black);
+
+                activeChecker = null;   // if !requiredCombat
             } else {
                 int pos = convertCoord(activeChecker.getPosition());
                 ImageView imageView = (ImageView) parent.getChildAt(pos);
@@ -126,7 +136,7 @@ public class GameController {
     }
 
     private int convertCoord(Cell cell) {
-        return ('h' - cell.getCoordinates().charAt(0)) * 8 + Integer.parseInt(String.valueOf(cell.getCoordinates().charAt(1))) - 1;
+        return (cell.getCoordinates().charAt(0) - 'a') + 8 * (8 - Integer.parseInt(String.valueOf(cell.getCoordinates().charAt(1))));
     }
 
     private boolean checkCollisionFor(int i, int j) {

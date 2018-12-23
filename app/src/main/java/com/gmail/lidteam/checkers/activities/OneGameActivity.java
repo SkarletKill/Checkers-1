@@ -81,7 +81,7 @@ public class OneGameActivity extends AppCompatActivity {
             gameType.setText(coordinates);     // need change
 
             ImageView iv = (ImageView) v;
-//            gameController.handleCellClick(parent, iv, position, id);
+            gameController.handleCellClick(parent, iv, position, id);
 
             // Set the current selected item background color
 //            iv.setImageResource(R.drawable.checker_black);
