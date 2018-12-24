@@ -1,5 +1,6 @@
 package com.gmail.lidteam.checkers.activities;
 
+import android.app.Notification;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -43,6 +44,7 @@ public class OneGameActivity extends AppCompatActivity {
 
     private User userI;
     private User userEnemy;
+    private boolean gameOver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,8 @@ public class OneGameActivity extends AppCompatActivity {
         board.setOnItemClickListener(gridViewOnItemClickListener);
 
         btn_ISurrender = (Button) findViewById(R.id.btn_surrender);
+        initSurrenderButton();
+        gameOver = false;
     }
 
     private GridView.OnItemClickListener gridViewOnItemClickListener = new GridView.OnItemClickListener() {
@@ -82,17 +86,18 @@ public class OneGameActivity extends AppCompatActivity {
             gameType.setText(coordinates);     // need change
 
             ImageView iv = (ImageView) v;
-            if (gameController.handleCellClick(parent, iv, position, id))
-                Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname(), Toast.LENGTH_LONG);
+            if (!gameOver && gameController.handleCellClick(parent, iv, position, id))
+                gameOver = true;
 
-            // Set the current selected item background color
-//            iv.setImageResource(R.drawable.checker_black);
+            whiteCheckers.setText(String.valueOf(gameModel.getWhites()));
+            blackCheckers.setText(String.valueOf(gameModel.getBlacks()));
+            if (gameOver) {
+                Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname(), Toast.LENGTH_LONG).show();
+                // ... goto next Intent
+            }
+
         }
     };
-
-    private String fixTime(String time) {
-        return (time.length() < 2) ? "0" + time : time;
-    }
 
     private void createTimer() {
         final int[] seconds = {0};
@@ -126,6 +131,10 @@ public class OneGameActivity extends AppCompatActivity {
         }, 0, 1000);
     }
 
+    private String fixTime(String time) {
+        return (time.length() < 2) ? "0" + time : time;
+    }
+
     private void createGame() {
         GameType gameType = userI.getPreferredType().equals(GameType.GIVEAWAY) ? GameType.GIVEAWAY : GameType.CLASSIC;
         PlayerColor playerColor = userI.getPreferredColor().equals(PlayerColor.BLACK) ? PlayerColor.BLACK : PlayerColor.WHITE;
@@ -146,6 +155,21 @@ public class OneGameActivity extends AppCompatActivity {
         gameModel = new OneGame(gameType,
                 playerColor.equals(PlayerColor.WHITE) ? userI : userEnemy,
                 playerColor.equals(PlayerColor.WHITE) ? userEnemy : userI);
+
+        whiteCheckers.setText(String.valueOf(gameModel.getWhites()));
+        blackCheckers.setText(String.valueOf(gameModel.getBlacks()));
+    }
+
+    private void initSurrenderButton() {
+        btn_ISurrender.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!gameOver) {
+                    gameController.surrender();
+                    gameOver = true;
+                }
+            }
+        });
     }
 
     private String parsePosition(int pos) {

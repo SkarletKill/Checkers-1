@@ -63,7 +63,24 @@ public class OneGame {
     }
 
     public void setWinner(boolean white) {
-        this.winner = (white) ? this.white : this.black;
+        if (white) {
+            this.winner = this.white;
+            this.white.setUnbelievableWins(this.white.getUnbelievableWins() + 1);
+            this.black.setEpicFails(this.black.getEpicFails() + 1);
+        } else {
+            this.winner = this.black;
+            this.black.setUnbelievableWins(this.black.getUnbelievableWins() + 1);
+            this.white.setEpicFails(this.white.getEpicFails() + 1);
+        }
+        endGame();
+    }
+
+    public void deleteChecker(Cell cell, boolean kill) {
+        if (kill) {
+            if (cell.getChecker().getColor().equals(CheckerColor.WHITE)) whites--;
+            if (cell.getChecker().getColor().equals(CheckerColor.BLACK)) blacks--;
+        }
+        cell.deleteChecker();
     }
 
     public Checker getCellContents(String coordinates) {
@@ -94,9 +111,6 @@ public class OneGame {
     }
 
     private void addChecker(Cell cell, CheckerColor color, CheckerType type) {
-    }
-
-    private void deleteChecker(Cell cell) {
     }
 
     public List<Move> getMoves() {

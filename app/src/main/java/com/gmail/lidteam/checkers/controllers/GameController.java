@@ -13,6 +13,7 @@ import com.gmail.lidteam.checkers.models.Cell;
 import com.gmail.lidteam.checkers.models.Checker;
 import com.gmail.lidteam.checkers.models.CheckerColor;
 import com.gmail.lidteam.checkers.models.CheckerType;
+import com.gmail.lidteam.checkers.models.GameType;
 import com.gmail.lidteam.checkers.models.OneGame;
 import com.gmail.lidteam.checkers.models.User;
 
@@ -62,7 +63,7 @@ public class GameController {
             }
         } else {
             if (handleSecondClick(cell)) {
-                activeChecker.getPosition().deleteChecker();
+                game.deleteChecker(activeChecker.getPosition(), false);
                 setImageFor(parent, R.drawable.empty_image, R.drawable.black_square_128, activeChecker.getPosition());
 
                 cell.setChecker(activeChecker);
@@ -89,13 +90,14 @@ public class GameController {
                         changePlayer();
                         requiredCombat = checkRequiredCombat();
                         if (!requiredCombat && !canMoveAtAll()) {
-                            if (moveWhite) game.setWinner(false);   // black win
-                            else game.setWinner(true);      //white win
+                            if (moveWhite)
+                                game.setWinner(!game.getGameType().equals(GameType.CLASSIC));
+                            else game.setWinner(game.getGameType().equals(GameType.CLASSIC));
                             //... end game;
                             return true;
                         }
                         activeChecker = null;
-                        return false;        // changePlayer();
+                        return false;        //
                     }
                 }
 
@@ -241,7 +243,7 @@ public class GameController {
         }
         String pos;
         if (checker.getType().equals(CheckerType.SIMPLE)) {
-            pos = getCoordinatesRelative(CheckerCoord, (checker.getColor().equals(CheckerColor.WHITE)) ? -1 : 1, 1);
+            pos = getCoordinatesRelative(CheckerCoord, (checker.getColor().equals(CheckerColor.WHITE)) ? 1 : -1, 1);
             if (checkCollisionFor(pos) && getChecker(pos) == null)
                 return true;
             pos = getCoordinatesRelative(pos, 0, -2);
@@ -435,7 +437,7 @@ public class GameController {
             if (midCell.getChecker() == null || color.equals(midCell.getChecker().getColor()))
                 return false;
             else {
-                midCell.deleteChecker();
+                game.deleteChecker(midCell, true);
                 this.deleteCheckerCell = midCell;
                 lastFight = true;
 //                statistic.updateByKilling(rank);      //sel.rank                      //new element (1)
@@ -502,7 +504,7 @@ public class GameController {
     private boolean checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies() {
         if (deleteCheckerCell != null) {
             lastFight = true;
-            deleteCheckerCell.deleteChecker();
+            game.deleteChecker(deleteCheckerCell, true);
 //            statistic.updateByKilling(sel.rank);      //sel.rank                      //new element (1)
         } else if (requiredCombat) return false;
         return true;
@@ -547,6 +549,7 @@ public class GameController {
     }
 
     public void surrender() {
+        game.setWinner(activeUser.equals(game.getBlack()));
     }
 
     public void sendMove(String move) {
