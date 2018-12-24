@@ -51,7 +51,7 @@ public class OneGame {
                 "a2", "c2", "e2", "g2",
                 "b3", "d3", "f3", "h3"};
         String[] opponentCheckersStartPositions = {"a6", "c6", "e6", "g6",
-                "b7", "d7", "g7", "h7",
+                "b7", "d7", "f7", "h7",
                 "a8", "c8", "e8", "g8"};
 
         for (String checkerPosition : userCheckersStartPositions) {

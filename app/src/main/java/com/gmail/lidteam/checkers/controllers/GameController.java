@@ -29,8 +29,8 @@ public class GameController {
     private boolean moveWhite;
     private boolean lastFight;  // last move was lastFight
     private boolean battleOver = true;  // battle was over
-    private boolean fightAction = false;
     private boolean requiredCombat = false;
+    private Cell deleteCheckerCell;
 
     public GameController(OneGameActivity activity, OneGame game, OpponentConnector opponentConnector) {
         this.gameActivity = activity;
@@ -38,6 +38,10 @@ public class GameController {
         this.opponentConnector = opponentConnector;
         this.activeUser = this.game.getWhite();
         this.moveWhite = true;
+        this.lastFight = false;
+        this.battleOver = true;
+        this.requiredCombat = false;
+        this.deleteCheckerCell = null;
         // ... init
     }
 
@@ -58,7 +62,17 @@ public class GameController {
 
                 cell.setChecker(activeChecker);
                 activeChecker.setPosition(cell);
-                iv.setImageResource((moveWhite) ? R.drawable.checker_white : R.drawable.checker_black);
+                int imageId = (moveWhite)
+                        ? (activeChecker.getType().equals(CheckerType.SIMPLE)) ? R.drawable.checker_white : R.drawable.white_checker_super
+                        : (activeChecker.getType().equals(CheckerType.SIMPLE)) ? R.drawable.checker_black : R.drawable.black_checker_super;
+                iv.setImageResource(imageId);
+
+                if (deleteCheckerCell != null) {
+                    pos = convertCoord(deleteCheckerCell);
+                    imageView = (ImageView) parent.getChildAt(pos);
+                    imageView.setImageResource(R.drawable.empty_image);
+                    deleteCheckerCell = null;
+                }
 
                 {
                     if (lastFight && canFightFor(activeChecker)) {
@@ -104,7 +118,7 @@ public class GameController {
 
     private boolean handleSecondClick(Cell cell) {
         // move
-        fightAction = false;
+        lastFight = false;
         if ((getXYCoord(cell)[0] + getXYCoord(cell)[0]) % 2 == 0) {     // black cell
             if (cell.equals(activeChecker.getPosition())) {
                 System.out.println("cancel checker selection");
@@ -366,7 +380,9 @@ public class GameController {
     private boolean checkRankForMove(Cell cell) {
         if (activeChecker.getType().equals(CheckerType.SIMPLE)) {    // simple white or black
             if (checkPossibilityMoveTo(cell, activeChecker)) {
-                if (getCoordY(cell) == '8') {
+                if (moveWhite && getCoordY(cell) == '8') {
+                    activeChecker.setType(CheckerType.SUPER);
+                } else if (!moveWhite && getCoordY(cell) == '1') {
                     activeChecker.setType(CheckerType.SUPER);
                 }
                 return true;
@@ -376,7 +392,7 @@ public class GameController {
             }
         } else if (activeChecker.getType().equals(CheckerType.SUPER)) {   // Super checker
             if (checkPossibilityMoveTo(cell, activeChecker)) {
-//                activeChecker.getPosition().deleteChecker();
+//                activeChecker.getPosition().deleteCheckerCell();
 //                cell.setChecker(activeChecker);
                 return true;
             } else {
@@ -412,13 +428,12 @@ public class GameController {
             int midX = (getCoordX(cell) + getCoordX(activeChecker.getPosition())) / 2;
             String midCoords = "" + (char) midX + (char) midY;
             Cell midCell = game.getBoard().get(midCoords);
-            if(midCell == null){
-                System.out.println();
-            }
+
             if (midCell.getChecker() == null || color.equals(midCell.getChecker().getColor()))
                 return false;
             else {
                 midCell.deleteChecker();
+                this.deleteCheckerCell = midCell;
                 lastFight = true;
 //                statistic.updateByKilling(rank);      //sel.rank                      //new element (1)
                 return true;
@@ -471,11 +486,12 @@ public class GameController {
 
     private boolean superCheckerNoPossibilityMoveForDiagonalliesForOneCell(CheckerColor color, String coord, String[] needDel) {
 //        if (cellArr[i][j].value * rank > 0) return true;
+        if (getChecker(coord) == null) return false;        // ???
         if (color.equals(getChecker(coord).getColor())) return true;
 //        if (cellArr[i][j].value * rank < 0) {
         else {
             if (!requiredCombat) return true;
-            if (needDel[0].isEmpty()) {
+            if (needDel[0] == null) {
                 needDel[0] = coord;
             } else return true;
         }
@@ -483,7 +499,7 @@ public class GameController {
     }
 
     private boolean checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies(String[] needDel) {
-        if (!needDel[0].isEmpty()) {
+        if (needDel[0] != null) {
             lastFight = true;
             game.getBoard().get(needDel[0]).deleteChecker();
 //            statistic.updateByKilling(sel.rank);      //sel.rank                      //new element (1)
@@ -520,11 +536,11 @@ public class GameController {
     private String[] setMinMaxCoordinates(char y, char x) {
         String min, max;
         if (getCoordY(activeChecker.getPosition()) < y) {
-            min = "" + getCoordY(activeChecker.getPosition()) + getCoordX(activeChecker.getPosition());
-            max = "" + y + x;
+            min = "" + getCoordX(activeChecker.getPosition()) + getCoordY(activeChecker.getPosition());
+            max = "" + x + y;
         } else {
-            min = "" + y + x;
-            max = "" + getCoordY(activeChecker.getPosition()) + getCoordX(activeChecker.getPosition());
+            min = "" + x + y;
+            max = "" + getCoordX(activeChecker.getPosition()) + getCoordY(activeChecker.getPosition());
         }
         return new String[]{min, max};
     }
