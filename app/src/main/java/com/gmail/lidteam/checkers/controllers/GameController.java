@@ -447,61 +447,59 @@ public class GameController {
         String min = min_max[0];
         String max = min_max[1];
 
-        String[] needDel = new String[1];      //a enemy checker which has been found
-
-        getCoordY(activeChecker.getPosition());
+//        getCoordY(activeChecker.getPosition());
         if (inMainDiagonally(activeChecker.getPosition(), cell)) {              //main diagonally
-            String midCoord = getCoordinatesRelative(min, 1, -1);
-            return superCheckerPossibilityMoveForMainDiagonally(color, max, midCoord, needDel);
+            String midCoord = getCoordinatesRelative(min, 1, 1);
+            return superCheckerPossibilityMoveForMainDiagonally(color, max, midCoord);
         }
 
         if (inAlternativeDiagonally(activeChecker.getPosition(), cell)) {              //secondarily diagonally
-            String midCoord = getCoordinatesRelative(min, 1, 1);
-            return superCheckerPossibilityMoveForSecondarilyDiagonally(color, max, midCoord, needDel);
+            String midCoord = getCoordinatesRelative(min, 1, -1);
+            return superCheckerPossibilityMoveForSecondarilyDiagonally(color, max, midCoord);
         }
 
         return false;
     }
 
-    private boolean superCheckerPossibilityMoveForMainDiagonally(CheckerColor color, String max, String mid, String[] needDel) {
+    private boolean superCheckerPossibilityMoveForMainDiagonally(CheckerColor color, String max, String mid) {
 
         while (getCoordY(mid) < getCoordY(max)) {
-            if (superCheckerNoPossibilityMoveForDiagonalliesForOneCell(color, mid, needDel))
-                return false;
-            mid = getCoordinatesRelative(mid, 1, -1);
-        }
-
-        return checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies(needDel);
-    }
-
-    private boolean superCheckerPossibilityMoveForSecondarilyDiagonally(CheckerColor color, String max, String mid, String[] needDel) {
-        while (getCoordY(mid) < getCoordY(max)) {
-            if (superCheckerNoPossibilityMoveForDiagonalliesForOneCell(color, mid, needDel))
+            if (superCheckerImpossibilityMoveForDiagonalliesForOneCell(color, mid))
                 return false;
             mid = getCoordinatesRelative(mid, 1, 1);
         }
 
-        return checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies(needDel);
+        return checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies();
     }
 
-    private boolean superCheckerNoPossibilityMoveForDiagonalliesForOneCell(CheckerColor color, String coord, String[] needDel) {
+    private boolean superCheckerPossibilityMoveForSecondarilyDiagonally(CheckerColor color, String max, String mid) {
+        while (getCoordY(mid) < getCoordY(max)) {
+            if (superCheckerImpossibilityMoveForDiagonalliesForOneCell(color, mid))
+                return false;
+            mid = getCoordinatesRelative(mid, 1, -1);
+        }
+
+        return checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies();
+    }
+
+    private boolean superCheckerImpossibilityMoveForDiagonalliesForOneCell(CheckerColor color, String coord) {
 //        if (cellArr[i][j].value * rank > 0) return true;
         if (getChecker(coord) == null) return false;        // ???
         if (color.equals(getChecker(coord).getColor())) return true;
 //        if (cellArr[i][j].value * rank < 0) {
         else {
             if (!requiredCombat) return true;
-            if (needDel[0] == null) {
-                needDel[0] = coord;
+            if (deleteCheckerCell == null) {
+                deleteCheckerCell = game.getBoard().get(coord);
             } else return true;
         }
         return false;
     }
 
-    private boolean checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies(String[] needDel) {
-        if (needDel[0] != null) {
+    private boolean checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies() {
+        if (deleteCheckerCell != null) {
             lastFight = true;
-            game.getBoard().get(needDel[0]).deleteChecker();
+            deleteCheckerCell.deleteChecker();
 //            statistic.updateByKilling(sel.rank);      //sel.rank                      //new element (1)
         } else if (requiredCombat) return false;
         return true;
