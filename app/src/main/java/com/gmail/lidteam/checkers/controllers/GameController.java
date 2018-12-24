@@ -128,7 +128,7 @@ public class GameController {
                 return false;
             }
             //check for rank...
-            if (checkRankForMove(cell)) return true;
+            if (canMoveTo(cell)) return true;
         } else {
             System.out.println("It is impossible to make a move to this square");
             return false;
@@ -318,34 +318,15 @@ public class GameController {
     }
 
     private boolean canMoveTo(Cell cell) {
-        return false;
-    }
-
-    private boolean checkRankForMove(Cell cell) {
-        if (activeChecker.getType().equals(CheckerType.SIMPLE)) {    // simple white or black
-            if (checkPossibilityMoveTo(cell, activeChecker)) {
-                if (moveWhite && getCoordY(cell) == '8') {
-                    activeChecker.setType(CheckerType.SUPER);
-                } else if (!moveWhite && getCoordY(cell) == '1') {
+        if (checkPossibilityMoveTo(cell, activeChecker)) {
+            if (activeChecker.getType().equals(CheckerType.SIMPLE)) {
+                if ((moveWhite && getCoordY(cell) == '8') || (!moveWhite && getCoordY(cell) == '1')) {
                     activeChecker.setType(CheckerType.SUPER);
                 }
-                return true;
-            } else {
-                if (requiredCombat) System.out.println("Required Combat!");
-                System.out.println("It is impossible to make a move simple checker to this cell");
             }
-        } else if (activeChecker.getType().equals(CheckerType.SUPER)) {   // Super checker
-            if (checkPossibilityMoveTo(cell, activeChecker)) {
-//                activeChecker.getPosition().deleteCheckerCell();
-//                cell.setChecker(activeChecker);
-                return true;
-            } else {
-                if (requiredCombat) System.out.println("Required Combat!");
-                System.out.println("It is impossible to make a move super checker to this cell");
-            }
-        } else System.out.println("Critical error in getting rank into move()!");
+            return true;
+        }
         return false;
-
     }
 
     private boolean checkPossibilityMoveTo(Cell cell, Checker checker) {
