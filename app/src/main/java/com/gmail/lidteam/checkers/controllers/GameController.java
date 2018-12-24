@@ -27,7 +27,8 @@ public class GameController {
     private OpponentConnector opponentConnector;
 
     private boolean moveWhite;
-    private boolean fight;  // last move was fight
+    private boolean lastFight;  // last move was lastFight
+    private boolean battleOver = true;  // battle was over
     private boolean fightAction = false;
     private boolean requiredCombat = false;
 
@@ -59,13 +60,33 @@ public class GameController {
                 activeChecker.setPosition(cell);
                 iv.setImageResource((moveWhite) ? R.drawable.checker_white : R.drawable.checker_black);
 
-                activeChecker = null;   // if !requiredCombat
-                return true;
+                {
+                    if (lastFight && canFightFor(activeChecker)) {
+                        battleOver = false;
+                        requiredCombat = true;
+                    } else battleOver = true;
+
+                    if (battleOver) {
+//                        d.statistic.clearStrick();
+                        changePlayer();
+                        requiredCombat = checkRequiredCombat();
+                        if (!requiredCombat && !canMoveAtAll()) {
+                            if (moveWhite) game.setWinner(false);   // black win
+                            else game.setWinner(true);      //white win
+                            //... end game;
+                        }
+                        activeChecker = null;
+                        return false;        // changePlayer();
+                    }
+                }
+
             } else {
-                int pos = convertCoord(activeChecker.getPosition());
-                ImageView imageView = (ImageView) parent.getChildAt(pos);
-                imageView.setBackgroundResource(R.drawable.black_square_128);
-                unselectChecker();
+                if (battleOver) {
+                    int pos = convertCoord(activeChecker.getPosition());
+                    ImageView imageView = (ImageView) parent.getChildAt(pos);
+                    imageView.setBackgroundResource(R.drawable.black_square_128);
+                    unselectChecker();
+                }
             }
         }
         return false;   // не змінювати гравця
@@ -83,6 +104,7 @@ public class GameController {
 
     private boolean handleSecondClick(Cell cell) {
         // move
+        fightAction = false;
         if ((getXYCoord(cell)[0] + getXYCoord(cell)[0]) % 2 == 0) {     // black cell
             if (cell.equals(activeChecker.getPosition())) {
                 System.out.println("cancel checker selection");
@@ -108,6 +130,9 @@ public class GameController {
     }
 
     private Checker getChecker(String coordinates) {
+//        if(game.getBoard().get(coordinates) == null) {
+//            System.out.println();
+//        }
         return game.getBoard().get(coordinates).getChecker();
     }
 
@@ -151,6 +176,7 @@ public class GameController {
     }
 
     private boolean checkCollisionFor(String coordinates) {
+        if (coordinates.length() > 2) return false;
         if (getCoordX(coordinates) < 'a' || getCoordX(coordinates) > 'h') return false;
         if (Integer.parseInt("" + getCoordY(coordinates)) > 8 || Integer.parseInt("" + getCoordY(coordinates)) < 1)
             return false;
@@ -158,7 +184,7 @@ public class GameController {
     }
 
     @TargetApi(Build.VERSION_CODES.N)
-    private boolean canMoveAtAll(String coordinates) {
+    private boolean canMoveAtAll() {
         ArrayList<Checker> checkers = game.getBoard().keySet().stream()
                 .map(game.getBoard()::get).map(Cell::getChecker).filter(Objects::nonNull)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -190,49 +216,34 @@ public class GameController {
 
     // need change x, y to pos (checkForCollision too)
     private boolean canMoveFor(Checker checker) {
-        int[] xy = getXYCoord(checker.getPosition());
-        int x = xy[0];
-        int y = xy[1];
+        String CheckerCoord = checker.getPosition().getCoordinates();
 
-        // ...
-        int ty = 0;    //temp var for i-index
-        int tx = 0;    //temp var for i-index
-
-//        if (checker.getType() == null) {
-//            System.out.println("A checker wasn't choosen!");
-//            return false;
-//        }
+        if (checker.getType() == null) {
+            System.out.println("A checker wasn't choosen!");
+            return false;
+        }
         String pos;
         if (checker.getType().equals(CheckerType.SIMPLE)) {
-            ty = (checker.getColor().equals(CheckerColor.WHITE)) ? y - 1 : y + 1;
-            tx = x + 1;
-            pos = parsePosition(ty * 8 + tx);
-            if (checkCollisionFor(ty, tx) && getChecker(pos) == null)
+            pos = getCoordinatesRelative(CheckerCoord, (checker.getColor().equals(CheckerColor.WHITE)) ? -1 : 1, 1);
+            if (checkCollisionFor(pos) && getChecker(pos) == null)
                 return true;
-            tx = x - 1;
-            pos = parsePosition(ty * 8 + tx);
-            if (checkCollisionFor(ty, tx) && getChecker(pos) == null)
+            pos = getCoordinatesRelative(pos, 0, -2);
+            if (checkCollisionFor(pos) && getChecker(pos) == null)
                 return true;
         }
         if (checker.getType().equals(CheckerType.SUPER)) {
-            ty = y - 1;
-            tx = x + 1;
-            pos = parsePosition(ty * 8 + tx);
-            if (checkCollisionFor(ty, tx) && getChecker(pos) == null)
+            pos = getCoordinatesRelative(CheckerCoord, -1, 1);
+            if (checkCollisionFor(pos) && getChecker(pos) == null)
                 return true;
-            tx = x - 1;
-            pos = parsePosition(ty * 8 + tx);
-            if (checkCollisionFor(ty, tx) && getChecker(pos) == null)
+            pos = getCoordinatesRelative(CheckerCoord, -1, -1);
+            if (checkCollisionFor(pos) && getChecker(pos) == null)
                 return true;
 
-            ty = y + 1;
-            tx = x + 1;
-            pos = parsePosition(ty * 8 + tx);
-            if (checkCollisionFor(ty, tx) && getChecker(pos) == null)
+            pos = getCoordinatesRelative(CheckerCoord, 1, 1);
+            if (checkCollisionFor(pos) && getChecker(pos) == null)
                 return true;
-            tx = x - 1;
-            pos = parsePosition(ty * 8 + tx);
-            if (checkCollisionFor(ty, tx) && getChecker(pos) == null)
+            pos = getCoordinatesRelative(CheckerCoord, 1, -1);
+            if (checkCollisionFor(pos) && getChecker(pos) == null)
                 return true;
 
         }
@@ -242,8 +253,6 @@ public class GameController {
     }
 
     private boolean canFightFor(Checker checker) {
-        int ti = 0;    //temp var for i-indexmo
-        int tj = 0;    //temp var for i-index
         String tCoord;
 
         if (checker == null) {
@@ -255,25 +264,29 @@ public class GameController {
             tCoord = getCoordinatesRelative(checker.getPosition().getCoordinates(), -2, -2);
             if (checkCollisionFor(tCoord) && getChecker(tCoord) == null) {
                 Checker midChecker = getChecker(getCoordinatesBetween(checker.getPosition().getCoordinates(), tCoord));
-                if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode())) return true;
+                if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode()))
+                    return true;
             }
             //right-down
             tCoord = getCoordinatesRelative(checker.getPosition().getCoordinates(), 2, 2);
             if (checkCollisionFor(tCoord) && getChecker(tCoord) == null) {
                 Checker midChecker = getChecker(getCoordinatesBetween(checker.getPosition().getCoordinates(), tCoord));
-                if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode())) return true;
+                if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode()))
+                    return true;
             }
             //left-down
             tCoord = getCoordinatesRelative(checker.getPosition().getCoordinates(), 2, -2);
             if (checkCollisionFor(tCoord) && getChecker(tCoord) == null) {
                 Checker midChecker = getChecker(getCoordinatesBetween(checker.getPosition().getCoordinates(), tCoord));
-                if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode())) return true;
+                if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode()))
+                    return true;
             }
             //right-up
             tCoord = getCoordinatesRelative(checker.getPosition().getCoordinates(), -2, 2);
             if (checkCollisionFor(tCoord) && getChecker(tCoord) == null) {
                 Checker midChecker = getChecker(getCoordinatesBetween(checker.getPosition().getCoordinates(), tCoord));
-                if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode())) return true;
+                if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode()))
+                    return true;
             }
 
             return false;    //it's important
@@ -282,8 +295,8 @@ public class GameController {
             //left-up
             tCoord = getCoordinatesRelative(checker.getPosition().getCoordinates(), -1, -1);
             while (checkCollisionFor(tCoord)) {
-                if (getChecker(tCoord) == null) {}
-                else if (checker.getColor().equals(getChecker(tCoord).getColor())) break;
+                if (getChecker(tCoord) == null) {
+                } else if (checker.getColor().equals(getChecker(tCoord).getColor())) break;
                 else {
                     String tCoord2 = getCoordinatesRelative(tCoord, -1, -1);
                     if (checkCollisionFor(tCoord2)) {
@@ -297,8 +310,8 @@ public class GameController {
             //right-down
             tCoord = getCoordinatesRelative(checker.getPosition().getCoordinates(), 1, 1);
             while (checkCollisionFor(tCoord)) {
-                if (getChecker(tCoord) == null) {}
-                else if (checker.getColor().equals(getChecker(tCoord).getColor())) break;
+                if (getChecker(tCoord) == null) {
+                } else if (checker.getColor().equals(getChecker(tCoord).getColor())) break;
                 else {
                     String tCoord2 = getCoordinatesRelative(tCoord, 1, 1);
                     if (checkCollisionFor(tCoord2)) {
@@ -312,8 +325,8 @@ public class GameController {
             //left-down
             tCoord = getCoordinatesRelative(checker.getPosition().getCoordinates(), 1, -1);
             while (checkCollisionFor(tCoord)) {
-                if (getChecker(tCoord) == null) {}
-                else if (checker.getColor().equals(getChecker(tCoord).getColor())) break;
+                if (getChecker(tCoord) == null) {
+                } else if (checker.getColor().equals(getChecker(tCoord).getColor())) break;
                 else {
                     String tCoord2 = getCoordinatesRelative(tCoord, 1, -1);
                     if (checkCollisionFor(tCoord2)) {
@@ -327,8 +340,8 @@ public class GameController {
             //right-up
             tCoord = getCoordinatesRelative(checker.getPosition().getCoordinates(), -1, 1);
             while (checkCollisionFor(tCoord)) {
-                if (getChecker(tCoord) == null) {}
-                else if (checker.getColor().equals(getChecker(tCoord).getColor())) break;
+                if (getChecker(tCoord) == null) {
+                } else if (checker.getColor().equals(getChecker(tCoord).getColor())) break;
                 else {
                     String tCoord2 = getCoordinatesRelative(tCoord, -1, 1);
                     if (checkCollisionFor(tCoord2)) {
@@ -394,16 +407,19 @@ public class GameController {
             else return false;
         }
         if (requiredCombat && Math.abs((getCoordY(cell) - getCoordY(activeChecker.getPosition())) *
-                (getCoordX(cell) - getCoordX(activeChecker.getPosition()))) == 4) {  //two-way move (fight)
+                (getCoordX(cell) - getCoordX(activeChecker.getPosition()))) == 4) {  //two-way move (lastFight)
             int midY = (getCoordY(cell) + getCoordY(activeChecker.getPosition())) / 2;
             int midX = (getCoordX(cell) + getCoordX(activeChecker.getPosition())) / 2;
-            String midCoords = "" + (char) midY + (char) midX;
+            String midCoords = "" + (char) midX + (char) midY;
             Cell midCell = game.getBoard().get(midCoords);
+            if(midCell == null){
+                System.out.println();
+            }
             if (midCell.getChecker() == null || color.equals(midCell.getChecker().getColor()))
                 return false;
             else {
                 midCell.deleteChecker();
-                fight = true;
+                lastFight = true;
 //                statistic.updateByKilling(rank);      //sel.rank                      //new element (1)
                 return true;
             }
@@ -468,7 +484,7 @@ public class GameController {
 
     private boolean checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies(String[] needDel) {
         if (!needDel[0].isEmpty()) {
-            fight = true;
+            lastFight = true;
             game.getBoard().get(needDel[0]).deleteChecker();
 //            statistic.updateByKilling(sel.rank);      //sel.rank                      //new element (1)
         } else if (requiredCombat) return false;
@@ -490,7 +506,7 @@ public class GameController {
     }
 
     private String getCoordinatesRelative(String coords, int dy, int dx) {
-        String relativeCoordinates = "" + (coords.charAt(1) + dy) + (Integer.parseInt(String.valueOf(coords.charAt(0))) + dx);
+        String relativeCoordinates = "" + (char) (coords.charAt(0) + dx) + (Integer.parseInt(String.valueOf(coords.charAt(1))) + dy);
         return relativeCoordinates;
     }
 

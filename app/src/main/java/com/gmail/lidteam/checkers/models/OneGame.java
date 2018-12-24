@@ -62,6 +62,10 @@ public class OneGame {
         }
     }
 
+    public void setWinner(boolean white) {
+        this.winner = (white) ? this.white : this.black;
+    }
+
     public Checker getCellContents(String coordinates) {
         return board.get(coordinates).getChecker();
     }
