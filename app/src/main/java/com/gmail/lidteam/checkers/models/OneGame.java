@@ -99,7 +99,7 @@ public class OneGame {
     private void deleteChecker(Cell cell) {
     }
 
-    List<Move> getMoves() {
+    public List<Move> getMoves() {
         return moves;
     }
 
@@ -115,7 +115,7 @@ public class OneGame {
         return black;
     }
 
-    Date getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
@@ -135,11 +135,11 @@ public class OneGame {
         return blacks;
     }
 
-    User getWinner() {
+    public User getWinner() {
         return winner;
     }
 
-    String getDuration() {
+    public String getDuration() {
         long diff = endTame.getTime() - startTime.getTime();
         long diffSeconds = diff / 1000 % 60;
         long diffMinutes = diff / (60 * 1000) % 60;
@@ -155,7 +155,7 @@ public class OneGame {
         else return 0;
     }
 
-    CheckerColor getWinnerColor(User user) {
+    public CheckerColor getWinnerColor(User user) {
         if (user.equals(winner)) return CheckerColor.WHITE;
         else return CheckerColor.BLACK;
     }

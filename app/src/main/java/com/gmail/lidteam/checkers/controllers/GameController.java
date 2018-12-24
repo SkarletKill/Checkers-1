@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.activities.OneGameActivity;
@@ -45,6 +46,13 @@ public class GameController {
         // ... init
     }
 
+    private void setImageFor(AdapterView<?> parent, int imageId, int backgroundId, Cell cell) {
+        int pos = convertCoord(cell);
+        ImageView imageView = (ImageView) parent.getChildAt(pos);
+        if (imageId != 0) imageView.setImageResource(imageId);
+        if (backgroundId != 0) imageView.setBackgroundResource(backgroundId);
+    }
+
     public boolean handleCellClick(AdapterView<?> parent, ImageView iv, int position, long id) {
         String coordinates = parsePosition(position);
         Cell cell = game.getBoard().get(coordinates);
@@ -55,10 +63,7 @@ public class GameController {
         } else {
             if (handleSecondClick(cell)) {
                 activeChecker.getPosition().deleteChecker();
-                int pos = convertCoord(activeChecker.getPosition());
-                ImageView imageView = (ImageView) parent.getChildAt(pos);
-                imageView.setBackgroundResource(R.drawable.black_square_128);
-                imageView.setImageResource(R.drawable.empty_image);
+                setImageFor(parent, R.drawable.empty_image, R.drawable.black_square_128, activeChecker.getPosition());
 
                 cell.setChecker(activeChecker);
                 activeChecker.setPosition(cell);
@@ -68,9 +73,7 @@ public class GameController {
                 iv.setImageResource(imageId);
 
                 if (deleteCheckerCell != null) {
-                    pos = convertCoord(deleteCheckerCell);
-                    imageView = (ImageView) parent.getChildAt(pos);
-                    imageView.setImageResource(R.drawable.empty_image);
+                    setImageFor(parent, R.drawable.empty_image, 0, deleteCheckerCell);
                     deleteCheckerCell = null;
                 }
 
@@ -78,6 +81,7 @@ public class GameController {
                     if (lastFight && canFightFor(activeChecker)) {
                         battleOver = false;
                         requiredCombat = true;
+                        setImageFor(parent, 0, R.drawable.lightgreen_square_128, activeChecker.getPosition());
                     } else battleOver = true;
 
                     if (battleOver) {
@@ -88,6 +92,7 @@ public class GameController {
                             if (moveWhite) game.setWinner(false);   // black win
                             else game.setWinner(true);      //white win
                             //... end game;
+                            return true;
                         }
                         activeChecker = null;
                         return false;        // changePlayer();
@@ -96,9 +101,7 @@ public class GameController {
 
             } else {
                 if (battleOver) {
-                    int pos = convertCoord(activeChecker.getPosition());
-                    ImageView imageView = (ImageView) parent.getChildAt(pos);
-                    imageView.setBackgroundResource(R.drawable.black_square_128);
+                    setImageFor(parent, 0, R.drawable.black_square_128, activeChecker.getPosition());
                     unselectChecker();
                 }
             }

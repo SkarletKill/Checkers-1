@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.adapters.ImageAdapter;
@@ -82,7 +83,7 @@ public class OneGameActivity extends AppCompatActivity {
 
             ImageView iv = (ImageView) v;
             if (gameController.handleCellClick(parent, iv, position, id))
-                gameController.changePlayer();
+                Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname(), Toast.LENGTH_LONG);
 
             // Set the current selected item background color
 //            iv.setImageResource(R.drawable.checker_black);
