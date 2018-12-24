@@ -1,6 +1,7 @@
 package com.gmail.lidteam.checkers.activities;
 
 import android.app.Notification;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -82,8 +83,8 @@ public class OneGameActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View v, int position,
                                 long id) {
             // выводим номер позиции
-            String coordinates = parsePosition(position);
-            gameType.setText(coordinates);     // need change
+//            String coordinates = parsePosition(position);
+//            gameType.setText(coordinates);     // need change
 
             ImageView iv = (ImageView) v;
             if (!gameOver && gameController.handleCellClick(parent, iv, position, id))
@@ -92,8 +93,10 @@ public class OneGameActivity extends AppCompatActivity {
             whiteCheckers.setText(String.valueOf(gameModel.getWhites()));
             blackCheckers.setText(String.valueOf(gameModel.getBlacks()));
             if (gameOver) {
-                Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname(), Toast.LENGTH_LONG).show();
+                Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname() + " won", Toast.LENGTH_LONG).show();
                 // ... goto next Intent
+                Intent intent = new Intent(OneGameActivity.this, MainActivity.class);
+                startActivity(intent);
             }
 
         }
