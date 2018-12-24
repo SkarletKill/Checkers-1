@@ -318,7 +318,15 @@ public class GameController {
     }
 
     private boolean canMoveTo(Cell cell) {
-        if (checkPossibilityMoveTo(cell, activeChecker)) {
+        if (cell.getChecker() != null) return false;
+        boolean moveOpportunity = false;
+        if (activeChecker.getType().equals(CheckerType.SIMPLE)) {
+            moveOpportunity = checkPossibilityMoveForBasicCheckerTo(cell, activeChecker.getColor());
+        } else {
+            moveOpportunity = checkPossibilityMoveForSuperCheckerTo(cell, activeChecker.getColor());
+        }
+
+        if (moveOpportunity) {
             if (activeChecker.getType().equals(CheckerType.SIMPLE)) {
                 if ((moveWhite && getCoordY(cell) == '8') || (!moveWhite && getCoordY(cell) == '1')) {
                     activeChecker.setType(CheckerType.SUPER);
@@ -327,16 +335,6 @@ public class GameController {
             return true;
         }
         return false;
-    }
-
-    private boolean checkPossibilityMoveTo(Cell cell, Checker checker) {
-        if (cell.getChecker() != null)
-            return false;       //This cell already has a checker
-        if (checker.getType().equals(CheckerType.SIMPLE)) {      //for basic checker
-            return checkPossibilityMoveForBasicCheckerTo(cell, checker.getColor());
-        } else {        //for super checker
-            return checkPossibilityMoveForSuperCheckerTo(cell, checker.getColor());
-        }
     }
 
     private boolean checkPossibilityMoveForBasicCheckerTo(Cell cell, CheckerColor color) {
