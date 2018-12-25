@@ -386,7 +386,7 @@ public class GameController {
     private boolean canSuperCheckerMoveToward(CheckerColor color, String min, String max, int dx) {
         String mid = getCoordinatesRelative(min, 1, dx);
 
-        // move for one cell toward
+        // check move for one cell toward
         while (getCoordY(mid) < getCoordY(max)) {
             if (getChecker(mid) != null) {
                 if (color.equals(getChecker(mid).getColor())) return false;
@@ -400,18 +400,15 @@ public class GameController {
                     }
                 }
             }
-
             mid = getCoordinatesRelative(mid, 1, dx);
         }
-        return superCanMoveByDiagonal();
-    }
 
-    private boolean superCanMoveByDiagonal() {
+        // check move by diagonal
         if (deleteCheckerCell != null) {
             lastFight = true;
             game.deleteChecker(deleteCheckerCell, true);
             return true;
-        } else return !requiredCombat;
+        } else return  !requiredCombat;
     }
 
     private boolean inMainDiagonally(Cell cell1, Cell cell2) {
