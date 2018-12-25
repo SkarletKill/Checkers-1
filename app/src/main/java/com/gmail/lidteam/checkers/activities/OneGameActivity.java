@@ -53,6 +53,8 @@ public class OneGameActivity extends AppCompatActivity {
     private boolean gameOver;
     private List<Cell> lastEnemyMove;
 
+    private GridView.OnItemClickListener gridViewOnItemClickListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +76,7 @@ public class OneGameActivity extends AppCompatActivity {
         gameController = new GameController(this, gameModel);
         opponentConnector = new OfflineOpponentConnector(userEnemy, gameController);
 
+        initGridViewListener();
         board = (GridView) findViewById(R.id.gridView1);
         board.setAdapter(new ImageAdapter(this));
         board.setOnItemClickListener(gridViewOnItemClickListener);
@@ -84,41 +87,49 @@ public class OneGameActivity extends AppCompatActivity {
         lastEnemyMove = new ArrayList<>();
     }
 
-    private GridView.OnItemClickListener gridViewOnItemClickListener = new GridView.OnItemClickListener() {
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        if (gameModel.getWhite().equals(userEnemy)) enemyFirstMove();
+//    }
 
-        @TargetApi(Build.VERSION_CODES.N)
-        @Override
-        public void onItemClick(AdapterView<?> parent, View v, int position,
-                                long id) {
-            lastEnemyMove.forEach(cell -> setImageFor(parent, 0, R.drawable.black_square_128, cell));
-            lastEnemyMove.clear();
-            ImageView iv = (ImageView) v;
-            String coordinates = parsePosition(position);
-            if (!gameOver && gameController.handleCellClick(parent, coordinates, false))
-                gameOver = true;
+    protected void initGridViewListener(){
+        gridViewOnItemClickListener = new GridView.OnItemClickListener() {
 
-            if (!gameOver && gameController.getActiveUser().equals(userEnemy)) {
-                do {
-                    Move move = opponentConnector.getOpponentsMove();
-                    gameController.handleCellClick(parent, move.getFrom().getCoordinates(), true);
-                    lastEnemyMove.add(move.getFrom());
-                    if (gameController.handleCellClick(parent, move.getTo().getCoordinates(), true))
-                        gameOver = true;
-                } while (!gameController.isBattleOver());
-                lastEnemyMove.forEach(cell -> setImageFor(parent, 0, R.drawable.darkred_square_64, cell));
+            @TargetApi(Build.VERSION_CODES.N)
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v, int position,
+                                    long id) {
+                lastEnemyMove.forEach(cell -> setImageFor(parent, 0, R.drawable.black_square_128, cell));
+                lastEnemyMove.clear();
+                ImageView iv = (ImageView) v;
+                String coordinates = parsePosition(position);
+                if (!gameOver && gameController.getActiveUser().equals(userI) && gameController.handleCellClick(parent, coordinates, false))
+                    gameOver = true;
+
+                if (!gameOver && gameController.getActiveUser().equals(userEnemy)) {
+                    do {
+                        Move move = opponentConnector.getOpponentsMove();
+                        gameController.handleCellClick(parent, move.getFrom().getCoordinates(), true);
+                        lastEnemyMove.add(move.getFrom());
+                        if (gameController.handleCellClick(parent, move.getTo().getCoordinates(), true))
+                            gameOver = true;
+                    } while (!gameController.isBattleOver());
+                    lastEnemyMove.forEach(cell -> setImageFor(parent, 0, R.drawable.darkred_square_64, cell));
+                }
+
+                whiteCheckers.setText(String.valueOf(gameModel.getWhites()));
+                blackCheckers.setText(String.valueOf(gameModel.getBlacks()));
+                if (gameOver) {
+                    Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname() + " won", Toast.LENGTH_LONG).show();
+                    // ... goto next Intent
+                    Intent intent = new Intent(OneGameActivity.this, MainActivity.class);
+                    startActivity(intent);
+                }
+
             }
-
-            whiteCheckers.setText(String.valueOf(gameModel.getWhites()));
-            blackCheckers.setText(String.valueOf(gameModel.getBlacks()));
-            if (gameOver) {
-                Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname() + " won", Toast.LENGTH_LONG).show();
-                // ... goto next Intent
-                Intent intent = new Intent(OneGameActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
-
-        }
-    };
+        };
+    }
 
     private void createTimer() {
         final int[] seconds = {0};
@@ -202,8 +213,22 @@ public class OneGameActivity extends AppCompatActivity {
     public static void setImageFor(AdapterView<?> parent, int imageId, int backgroundId, Cell cell) {
         int pos = (cell.getCoordinates().charAt(0) - 'a') + 8 * (8 - Integer.parseInt(String.valueOf(cell.getCoordinates().charAt(1))));
         ImageView imageView = (ImageView) parent.getChildAt(pos);
+//        if(imageView == null) imageView = (ImageView) parent.getAdapter().getView(pos, parent.getEmptyView(), parent);
         if (imageId != 0) imageView.setImageResource(imageId);
         if (backgroundId != 0) imageView.setBackgroundResource(backgroundId);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    private void enemyFirstMove() {
+//        AdapterView<?> parent = board;
+//        AdapterView<?> parent = (AdapterView<?>) board.getAdapter();
+//        board.performItemClick(board.getEmptyView(), 0, 0);
+
+        int pos = 0;
+//        board.performItemClick(board.getChildAt(pos), pos, board.getItemIdAtPosition(pos));
+//        board.performItemClick(board.getAdapter().getView(), pos, board.getItemIdAtPosition(pos));
+
+        gridViewOnItemClickListener.onItemClick(board, board.getChildAt(pos), 0, 0);
     }
 
     public void addChecker(String coordinates, CheckerColor color, CheckerType type) {
