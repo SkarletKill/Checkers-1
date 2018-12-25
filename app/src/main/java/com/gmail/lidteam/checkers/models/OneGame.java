@@ -113,6 +113,10 @@ public class OneGame {
     private void addChecker(Cell cell, CheckerColor color, CheckerType type) {
     }
 
+    public void addMove(Move move) {
+        moves.add(move);
+    }
+
     public List<Move> getMoves() {
         return moves;
     }

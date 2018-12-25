@@ -13,6 +13,7 @@ import com.gmail.lidteam.checkers.models.Checker;
 import com.gmail.lidteam.checkers.models.CheckerColor;
 import com.gmail.lidteam.checkers.models.CheckerType;
 import com.gmail.lidteam.checkers.models.GameType;
+import com.gmail.lidteam.checkers.models.Move;
 import com.gmail.lidteam.checkers.models.OneGame;
 import com.gmail.lidteam.checkers.models.User;
 
@@ -54,13 +55,16 @@ public class GameController {
     }
 
     public boolean handleCellClick(AdapterView<?> parent, ImageView iv, String position, long id) {
-        Cell cell = game.getBoard().get(position);
+        Cell cell = Objects.requireNonNull(game.getBoard().get(position));
         if (activeChecker == null) {
             if (handleFirstClick(cell)) {
                 iv.setBackgroundResource(R.drawable.lightgreen_square_128);
             }
         } else {
             if (handleSecondClick(cell)) {
+                Cell from = activeChecker.getPosition();
+                game.addMove(new Move(from, cell, activeUser.equals(game.getWhite())? CheckerColor.WHITE: CheckerColor.BLACK, lastFight));
+
                 game.deleteChecker(activeChecker.getPosition(), false);
                 setImageFor(parent, R.drawable.empty_image, R.drawable.black_square_128, activeChecker.getPosition());
 
