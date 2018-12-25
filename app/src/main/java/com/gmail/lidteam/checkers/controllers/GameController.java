@@ -293,7 +293,7 @@ public class GameController {
 
     private boolean canSimpleKillOn(Checker checker, String tCoord) {
         if (checkCollisionFor(tCoord) && getChecker(tCoord) == null) {
-            Checker midChecker = getChecker(getCoordinatesBetween(checker.getPosition().getCoordinates(), tCoord));
+            Checker midChecker = getCellBetween(checker.getPosition().getCoordinates(), tCoord).getChecker();
             if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode()))
                 return true;
         }
@@ -321,9 +321,9 @@ public class GameController {
         if (cell.getChecker() != null) return false;
         boolean moveOpportunity = false;
         if (activeChecker.getType().equals(CheckerType.SIMPLE)) {
-            moveOpportunity = checkPossibilityMoveForBasicCheckerTo(cell, activeChecker.getColor());
+            moveOpportunity = canBasicCheckerMoveTo(cell, activeChecker.getColor());
         } else {
-            moveOpportunity = checkPossibilityMoveForSuperCheckerTo(cell, activeChecker.getColor());
+            moveOpportunity = canSuperCheckerMoveTo(cell, activeChecker.getColor());
         }
 
         if (moveOpportunity) {
@@ -337,20 +337,18 @@ public class GameController {
         return false;
     }
 
-    private boolean checkPossibilityMoveForBasicCheckerTo(Cell cell, CheckerColor color) {
-        if (!requiredCombat && Math.abs(getCoordX(cell) - getCoordX(activeChecker.getPosition())) == 1) {                    //one-way move diagonally
-            //fightAction = false;
-            if (color.equals(CheckerColor.WHITE) && (getCoordY(cell) - getCoordY(activeChecker.getPosition())) == 1 ||
-                    color.equals(CheckerColor.BLACK) && (getCoordY(cell) - getCoordY(activeChecker.getPosition())) == -1)
+    private boolean canBasicCheckerMoveTo(Cell cell, CheckerColor color) {
+        if (!requiredCombat && Math.abs(getXDifference(cell, activeChecker.getPosition())) == 1) {
+            if (color.equals(CheckerColor.WHITE) && getYDifference(cell, activeChecker.getPosition()) == 1 ||
+                    color.equals(CheckerColor.BLACK) && getYDifference(cell, activeChecker.getPosition()) == -1) {
+                lastFight = false;
                 return true;
+            }
             else return false;
         }
-        if (requiredCombat && Math.abs((getCoordY(cell) - getCoordY(activeChecker.getPosition())) *
-                (getCoordX(cell) - getCoordX(activeChecker.getPosition()))) == 4) {  //two-way move (lastFight)
-            int midY = (getCoordY(cell) + getCoordY(activeChecker.getPosition())) / 2;
-            int midX = (getCoordX(cell) + getCoordX(activeChecker.getPosition())) / 2;
-            String midCoords = "" + (char) midX + (char) midY;
-            Cell midCell = game.getBoard().get(midCoords);
+        if (requiredCombat && Math.abs(getYDifference(cell, activeChecker.getPosition()) *
+                getXDifference(cell, activeChecker.getPosition())) == 4) {  //two-way move (lastFight)
+            Cell midCell = getCellBetween(cell.getCoordinates(), activeChecker.getPosition().getCoordinates());
 
             if (midCell.getChecker() == null || color.equals(midCell.getChecker().getColor()))
                 return false;
@@ -358,51 +356,46 @@ public class GameController {
                 game.deleteChecker(midCell, true);
                 this.deleteCheckerCell = midCell;
                 lastFight = true;
-//                statistic.updateByKilling(rank);      //sel.rank                      //new element (1)
                 return true;
             }
         }
         return false;
     }
 
-    private boolean checkPossibilityMoveForSuperCheckerTo(Cell cell, CheckerColor color) {
+    private boolean canSuperCheckerMoveTo(Cell cell, CheckerColor color) {
         String[] min_max = setMinMaxCoordinates(getCoordY(cell), getCoordX(cell));
         String min = min_max[0];
         String max = min_max[1];
 
-//        getCoordY(activeChecker.getPosition());
-        if (inMainDiagonally(activeChecker.getPosition(), cell)) {              //main diagonally
-            String midCoord = getCoordinatesRelative(min, 1, 1);
-            return superCheckerPossibilityMoveForMainDiagonally(color, max, midCoord);
-        }
+        if (inMainDiagonally(activeChecker.getPosition(), cell)) {
+            String mid = getCoordinatesRelative(min, 1, 1);
 
-        if (inAlternativeDiagonally(activeChecker.getPosition(), cell)) {              //secondarily diagonally
-            String midCoord = getCoordinatesRelative(min, 1, -1);
-            return superCheckerPossibilityMoveForSecondarilyDiagonally(color, max, midCoord);
+            while (getCoordY(mid) < getCoordY(max)) {
+                if (superCheckerImpossibilityMoveForDiagonalliesForOneCell(color, mid))
+                    return false;
+                mid = getCoordinatesRelative(mid, 1, 1);
+            }
+            return checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies();
+        } else if (inAlternativeDiagonally(activeChecker.getPosition(), cell)) {
+            String mid = getCoordinatesRelative(min, 1, -1);
+
+            while (getCoordY(mid) < getCoordY(max)) {
+                if (superCheckerImpossibilityMoveForDiagonalliesForOneCell(color, mid))
+                    return false;
+                mid = getCoordinatesRelative(mid, 1, -1);
+            }
+            return checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies();
         }
 
         return false;
     }
 
-    private boolean superCheckerPossibilityMoveForMainDiagonally(CheckerColor color, String max, String mid) {
-
-        while (getCoordY(mid) < getCoordY(max)) {
-            if (superCheckerImpossibilityMoveForDiagonalliesForOneCell(color, mid))
-                return false;
-            mid = getCoordinatesRelative(mid, 1, 1);
-        }
-
-        return checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies();
+    private int getXDifference(Cell cell1, Cell cell2) {
+        return getCoordX(cell1) - getCoordX(cell2);
     }
 
-    private boolean superCheckerPossibilityMoveForSecondarilyDiagonally(CheckerColor color, String max, String mid) {
-        while (getCoordY(mid) < getCoordY(max)) {
-            if (superCheckerImpossibilityMoveForDiagonalliesForOneCell(color, mid))
-                return false;
-            mid = getCoordinatesRelative(mid, 1, -1);
-        }
-
-        return checkForCleanlinessSuperCheckerForPossibilityMoveForDiagonallies();
+    private int getYDifference(Cell cell1, Cell cell2) {
+        return getCoordY(cell1) - getCoordY(cell2);
     }
 
     private boolean superCheckerImpossibilityMoveForDiagonalliesForOneCell(CheckerColor color, String coord) {
@@ -423,7 +416,6 @@ public class GameController {
         if (deleteCheckerCell != null) {
             lastFight = true;
             game.deleteChecker(deleteCheckerCell, true);
-//            statistic.updateByKilling(sel.rank);      //sel.rank                      //new element (1)
         } else if (requiredCombat) return false;
         return true;
     }
@@ -447,11 +439,11 @@ public class GameController {
         return relativeCoordinates;
     }
 
-    private String getCoordinatesBetween(String coords1, String coords2) {
+    private Cell getCellBetween(String coords1, String coords2) {
         char midX = (char) ((getCoordX(coords1) + getCoordX(coords2)) / 2); //???
         char midY = (char) ((getCoordY(coords1) + getCoordY(coords2)) / 2); //???
         String betweenCoordinates = "" + midX + midY;
-        return betweenCoordinates;
+        return game.getBoard().get(betweenCoordinates);
     }
 
     private String[] setMinMaxCoordinates(char y, char x) {
