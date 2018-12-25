@@ -40,7 +40,6 @@ public class OneGameActivity extends AppCompatActivity {
 
     private OneGame gameModel;
     private GameController gameController;
-    private OpponentConnector opponentConnector;
 
     private User userI;
     private User userEnemy;
@@ -64,8 +63,9 @@ public class OneGameActivity extends AppCompatActivity {
         // hardcoded enemy (need to change)
         userEnemy = new User("AI@chekers.game", userI.getPreferredAiLevel().name(), 0, 0, 0);
         createGame();
-        opponentConnector = new OfflineOpponentConnector();
-        gameController = new GameController(this, gameModel, opponentConnector);
+        gameController = new GameController(this, gameModel);
+        OpponentConnector opponentConnector = new OfflineOpponentConnector(userEnemy, gameController);
+        gameController.setOpponentConnector(opponentConnector);
 
         board = (GridView) findViewById(R.id.gridView1);
         board.setAdapter(new ImageAdapter(this));

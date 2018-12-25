@@ -20,6 +20,14 @@ public class Move {
         if (fight) this.move += "*";
     }
 
+    public Cell getFrom() {
+        return from;
+    }
+
+    public Cell getTo() {
+        return to;
+    }
+
     public String getMove() {
         return move;
     }

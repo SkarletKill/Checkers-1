@@ -34,10 +34,9 @@ public class GameController {
     private boolean requiredCombat;
     private Cell deleteCheckerCell;
 
-    public GameController(OneGameActivity activity, OneGame game, OpponentConnector opponentConnector) {
+    public GameController(OneGameActivity activity, OneGame game) {
         this.gameActivity = activity;
         this.game = game;
-        this.opponentConnector = opponentConnector;
         this.activeUser = this.game.getWhite();
         this.moveWhite = true;
         this.lastFight = false;
@@ -45,6 +44,10 @@ public class GameController {
         this.requiredCombat = false;
         this.deleteCheckerCell = null;
         // ... init
+    }
+
+    public void setOpponentConnector(OpponentConnector opponentConnector){
+        this.opponentConnector = opponentConnector;
     }
 
     private void setImageFor(AdapterView<?> parent, int imageId, int backgroundId, Cell cell) {
@@ -150,10 +153,7 @@ public class GameController {
         return false;
     }
 
-    private Checker getChecker(String coordinates) {
-//        if(game.getBoard().get(coordinates) == null) {
-//            System.out.println();
-//        }
+    public Checker getChecker(String coordinates) {
         return game.getBoard().get(coordinates).getChecker();
     }
 
@@ -198,7 +198,7 @@ public class GameController {
         return true;
     }
 
-    private boolean checkCollisionFor(String coordinates) {
+    public boolean checkCollisionFor(String coordinates) {
         if (coordinates.length() > 2) return false;
         if (getCoordX(coordinates) < 'a' || getCoordX(coordinates) > 'h') return false;
         if (Integer.parseInt("" + getCoordY(coordinates)) > 8 || Integer.parseInt("" + getCoordY(coordinates)) < 1)
@@ -303,7 +303,7 @@ public class GameController {
         return false;
     }
 
-    private boolean canSimpleKillOn(Checker checker, String tCoord) {
+    public boolean canSimpleKillOn(Checker checker, String tCoord) {
         if (checkCollisionFor(tCoord) && getChecker(tCoord) == null) {
             Checker midChecker = getCellBetween(checker.getPosition().getCoordinates(), tCoord).getChecker();
             if (midChecker != null && checker.getColor().getOppositeColorCode().equals(midChecker.getColor().getColorCode()))
@@ -331,7 +331,7 @@ public class GameController {
 
     private boolean canMoveTo(Cell cell) {
         if (cell.getChecker() != null) return false;
-        boolean moveOpportunity = false;
+        boolean moveOpportunity;
         if (activeChecker.getType().equals(CheckerType.SIMPLE)) {
             moveOpportunity = canBasicCheckerMoveTo(cell, activeChecker.getColor());
         } else {
@@ -429,7 +429,7 @@ public class GameController {
         return shift1 == shift2;
     }
 
-    private String getCoordinatesRelative(String coords, int dy, int dx) {
+    public String getCoordinatesRelative(String coords, int dy, int dx) {
         String relativeCoordinates = "" + (char) (coords.charAt(0) + dx) + (Integer.parseInt(String.valueOf(coords.charAt(1))) + dy);
         return relativeCoordinates;
     }
@@ -461,7 +461,7 @@ public class GameController {
         opponentConnector.sendUsersMove(move);
     }
 
-    public String getMove() {
+    public Move getMove() {
         return opponentConnector.getOpponentsMove();
     }
 
@@ -481,4 +481,12 @@ public class GameController {
     private void onGameOver() {
     }
 
+
+    public OneGame getGame() {
+        return game;
+    }
+
+    public boolean isRequiredCombat() {
+        return requiredCombat;
+    }
 }
