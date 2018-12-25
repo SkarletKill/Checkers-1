@@ -20,6 +20,7 @@ import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.CheckerColor;
 import com.gmail.lidteam.checkers.models.CheckerType;
 import com.gmail.lidteam.checkers.models.GameType;
+import com.gmail.lidteam.checkers.models.Move;
 import com.gmail.lidteam.checkers.models.OneGame;
 import com.gmail.lidteam.checkers.models.PlayerColor;
 import com.gmail.lidteam.checkers.models.User;
@@ -40,6 +41,7 @@ public class OneGameActivity extends AppCompatActivity {
 
     private OneGame gameModel;
     private GameController gameController;
+    private OpponentConnector opponentConnector;
 
     private User userI;
     private User userEnemy;
@@ -64,7 +66,7 @@ public class OneGameActivity extends AppCompatActivity {
         userEnemy = new User("AI@chekers.game", userI.getPreferredAiLevel().name(), 0, 0, 0);
         createGame();
         gameController = new GameController(this, gameModel);
-        OpponentConnector opponentConnector = new OfflineOpponentConnector(userEnemy, gameController);
+        opponentConnector = new OfflineOpponentConnector(userEnemy, gameController);
         gameController.setOpponentConnector(opponentConnector);
 
         board = (GridView) findViewById(R.id.gridView1);
@@ -84,8 +86,17 @@ public class OneGameActivity extends AppCompatActivity {
 
             ImageView iv = (ImageView) v;
             String coordinates = parsePosition(position);
-            if (!gameOver && gameController.handleCellClick(parent, iv, coordinates, id))
+            if (!gameOver && gameController.handleCellClick(parent, coordinates, id))
                 gameOver = true;
+
+            if (!gameOver && gameController.getActiveUser().equals(userEnemy)) {
+                do {
+                    Move move = opponentConnector.getOpponentsMove();
+                    gameController.handleCellClick(parent, move.getFrom().getCoordinates(), id);
+                    if (gameController.handleCellClick(parent, move.getTo().getCoordinates(), id))
+                        gameOver = true;
+                } while (!gameController.isBattleOver());
+            }
 
             whiteCheckers.setText(String.valueOf(gameModel.getWhites()));
             blackCheckers.setText(String.valueOf(gameModel.getBlacks()));
@@ -177,15 +188,6 @@ public class OneGameActivity extends AppCompatActivity {
         int x = pos % 8;
         return String.valueOf((char) ('a' + x)) + y;
     }
-
-    public void onGridItemClick() {
-    }
-
-    public void onSurrenderButtonClick() {
-    }
-
-    public void repaintDesk() {
-    } // ???
 
     public void addChecker(String coordinates, CheckerColor color, CheckerType type) {
     }

@@ -57,11 +57,12 @@ public class GameController {
         if (backgroundId != 0) imageView.setBackgroundResource(backgroundId);
     }
 
-    public boolean handleCellClick(AdapterView<?> parent, ImageView iv, String position, long id) {
+    public boolean handleCellClick(AdapterView<?> parent, String position, long id) {
         Cell cell = Objects.requireNonNull(game.getBoard().get(position));
         if (activeChecker == null) {
             if (handleFirstClick(cell)) {
-                iv.setBackgroundResource(R.drawable.lightgreen_square_128);
+//                iv.setBackgroundResource(R.drawable.lightgreen_square_128);
+                setImageFor(parent, 0, R.drawable.lightgreen_square_128, cell);
             }
         } else {
             if (handleSecondClick(cell)) {
@@ -76,7 +77,8 @@ public class GameController {
                 int imageId = (moveWhite)
                         ? (activeChecker.getType().equals(CheckerType.SIMPLE)) ? R.drawable.checker_white : R.drawable.white_checker_super
                         : (activeChecker.getType().equals(CheckerType.SIMPLE)) ? R.drawable.checker_black : R.drawable.black_checker_super;
-                iv.setImageResource(imageId);
+//                iv.setImageResource(imageId);
+                setImageFor(parent, imageId, 0, cell);
 
                 if (deleteCheckerCell != null) {
                     setImageFor(parent, R.drawable.empty_image, 0, deleteCheckerCell);
@@ -488,5 +490,13 @@ public class GameController {
 
     public boolean isRequiredCombat() {
         return requiredCombat;
+    }
+
+    public User getActiveUser() {
+        return activeUser;
+    }
+
+    public boolean isBattleOver() {
+        return battleOver;
     }
 }
