@@ -1,6 +1,8 @@
 package com.gmail.lidteam.checkers.activities;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +19,7 @@ import com.gmail.lidteam.checkers.connectors.OfflineOpponentConnector;
 import com.gmail.lidteam.checkers.connectors.OpponentConnector;
 import com.gmail.lidteam.checkers.controllers.GameController;
 import com.gmail.lidteam.checkers.controllers.UserController;
+import com.gmail.lidteam.checkers.models.Cell;
 import com.gmail.lidteam.checkers.models.CheckerColor;
 import com.gmail.lidteam.checkers.models.CheckerType;
 import com.gmail.lidteam.checkers.models.GameType;
@@ -25,6 +28,8 @@ import com.gmail.lidteam.checkers.models.OneGame;
 import com.gmail.lidteam.checkers.models.PlayerColor;
 import com.gmail.lidteam.checkers.models.User;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,6 +51,7 @@ public class OneGameActivity extends AppCompatActivity {
     private User userI;
     private User userEnemy;
     private boolean gameOver;
+    private List<Cell> lastEnemyMove;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +73,6 @@ public class OneGameActivity extends AppCompatActivity {
         createGame();
         gameController = new GameController(this, gameModel);
         opponentConnector = new OfflineOpponentConnector(userEnemy, gameController);
-        gameController.setOpponentConnector(opponentConnector);
 
         board = (GridView) findViewById(R.id.gridView1);
         board.setAdapter(new ImageAdapter(this));
@@ -76,26 +81,31 @@ public class OneGameActivity extends AppCompatActivity {
         btn_ISurrender = (Button) findViewById(R.id.btn_surrender);
         initSurrenderButton();
         gameOver = false;
+        lastEnemyMove = new ArrayList<>();
     }
 
     private GridView.OnItemClickListener gridViewOnItemClickListener = new GridView.OnItemClickListener() {
 
+        @TargetApi(Build.VERSION_CODES.N)
         @Override
         public void onItemClick(AdapterView<?> parent, View v, int position,
                                 long id) {
-
+            lastEnemyMove.forEach(cell -> setImageFor(parent, 0, R.drawable.black_square_128, cell));
+            lastEnemyMove.clear();
             ImageView iv = (ImageView) v;
             String coordinates = parsePosition(position);
-            if (!gameOver && gameController.handleCellClick(parent, coordinates, id))
+            if (!gameOver && gameController.handleCellClick(parent, coordinates, false))
                 gameOver = true;
 
             if (!gameOver && gameController.getActiveUser().equals(userEnemy)) {
                 do {
                     Move move = opponentConnector.getOpponentsMove();
-                    gameController.handleCellClick(parent, move.getFrom().getCoordinates(), id);
-                    if (gameController.handleCellClick(parent, move.getTo().getCoordinates(), id))
+                    gameController.handleCellClick(parent, move.getFrom().getCoordinates(), true);
+                    lastEnemyMove.add(move.getFrom());
+                    if (gameController.handleCellClick(parent, move.getTo().getCoordinates(), true))
                         gameOver = true;
                 } while (!gameController.isBattleOver());
+                lastEnemyMove.forEach(cell -> setImageFor(parent, 0, R.drawable.darkred_square_64, cell));
             }
 
             whiteCheckers.setText(String.valueOf(gameModel.getWhites()));
@@ -187,6 +197,13 @@ public class OneGameActivity extends AppCompatActivity {
         int y = 8 - pos / 8;
         int x = pos % 8;
         return String.valueOf((char) ('a' + x)) + y;
+    }
+
+    public static void setImageFor(AdapterView<?> parent, int imageId, int backgroundId, Cell cell) {
+        int pos = (cell.getCoordinates().charAt(0) - 'a') + 8 * (8 - Integer.parseInt(String.valueOf(cell.getCoordinates().charAt(1))));
+        ImageView imageView = (ImageView) parent.getChildAt(pos);
+        if (imageId != 0) imageView.setImageResource(imageId);
+        if (backgroundId != 0) imageView.setBackgroundResource(backgroundId);
     }
 
     public void addChecker(String coordinates, CheckerColor color, CheckerType type) {

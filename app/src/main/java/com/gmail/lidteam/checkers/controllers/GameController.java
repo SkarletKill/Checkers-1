@@ -21,12 +21,14 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.gmail.lidteam.checkers.activities.OneGameActivity.setImageFor;
+
 public class GameController {
     private User activeUser;
     private OneGame game;
     private OneGameActivity gameActivity;
     private Checker activeChecker;
-    private OpponentConnector opponentConnector;
+//    private OpponentConnector opponentConnector;
 
     private boolean moveWhite;
     private boolean lastFight;  // last move was lastFight
@@ -46,22 +48,10 @@ public class GameController {
         // ... init
     }
 
-    public void setOpponentConnector(OpponentConnector opponentConnector){
-        this.opponentConnector = opponentConnector;
-    }
-
-    private void setImageFor(AdapterView<?> parent, int imageId, int backgroundId, Cell cell) {
-        int pos = convertCoord(cell);
-        ImageView imageView = (ImageView) parent.getChildAt(pos);
-        if (imageId != 0) imageView.setImageResource(imageId);
-        if (backgroundId != 0) imageView.setBackgroundResource(backgroundId);
-    }
-
-    public boolean handleCellClick(AdapterView<?> parent, String position, long id) {
+    public boolean handleCellClick(AdapterView<?> parent, String position, boolean opponent) {
         Cell cell = Objects.requireNonNull(game.getBoard().get(position));
         if (activeChecker == null) {
             if (handleFirstClick(cell)) {
-//                iv.setBackgroundResource(R.drawable.lightgreen_square_128);
                 setImageFor(parent, 0, R.drawable.lightgreen_square_128, cell);
             }
         } else {
@@ -77,7 +67,6 @@ public class GameController {
                 int imageId = (moveWhite)
                         ? (activeChecker.getType().equals(CheckerType.SIMPLE)) ? R.drawable.checker_white : R.drawable.white_checker_super
                         : (activeChecker.getType().equals(CheckerType.SIMPLE)) ? R.drawable.checker_black : R.drawable.black_checker_super;
-//                iv.setImageResource(imageId);
                 setImageFor(parent, imageId, 0, cell);
 
                 if (deleteCheckerCell != null) {
@@ -188,10 +177,6 @@ public class GameController {
 
     private int getYDifference(Cell cell1, Cell cell2) {
         return getCoordY(cell1) - getCoordY(cell2);
-    }
-
-    private int convertCoord(Cell cell) {
-        return (cell.getCoordinates().charAt(0) - 'a') + 8 * (8 - Integer.parseInt(String.valueOf(cell.getCoordinates().charAt(1))));
     }
 
     private boolean checkCollisionFor(int i, int j) {
@@ -459,13 +444,13 @@ public class GameController {
         game.setWinner(activeUser.equals(game.getBlack()));
     }
 
-    public void sendMove(String move) {
-        opponentConnector.sendUsersMove(move);
-    }
+//    public void sendMove(String move) {
+//        opponentConnector.sendUsersMove(move);
+//    }
 
-    public Move getMove() {
-        return opponentConnector.getOpponentsMove();
-    }
+//    public Move getMove() {
+//        return opponentConnector.getOpponentsMove();
+//    }
 
     public boolean isGameOver() {
         return false;
