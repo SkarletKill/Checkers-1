@@ -3,8 +3,9 @@ package com.gmail.lidteam.checkers.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -23,33 +24,35 @@ import android.widget.TextView;
 
 import com.gmail.lidteam.checkers.R;
 import com.gmail.lidteam.checkers.connectors.DBLocalConnector;
-import com.gmail.lidteam.checkers.models.CheckerColor;
+import com.gmail.lidteam.checkers.connectors.SharedPreferencesConnector;
+import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.GameForDB;
-import com.gmail.lidteam.checkers.models.Move;
 import com.gmail.lidteam.checkers.models.User;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private User user;
     private GameItemAdapter adapter;
+    private DBLocalConnector dbLocalConnector;
+    private UserController userController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        DBLocalConnector dbLocalConnector = new DBLocalConnector(this);
-//        dbLocalConnector.deleteAll();
-
-        // add fork (if current user is null)
-//        Intent intent = new Intent(this, LoginActivity.class);
-//        startActivity(intent);
-
+        staelIntroActivity();
+        userController  = UserController.getInstance(this);
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        dbLocalConnector = new DBLocalConnector(this);
+        if(userController.noUserLoggedIn() || mAuth.getCurrentUser() == null)  {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+        }
+        System.out.println(mAuth.getUid());
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 //        ArrayList<Move> moves = new ArrayList<>();
 //        moves.add(new Move("one", CheckerColor.BLACK));
 //        moves.add(new Move("two", CheckerColor.WHITE));
@@ -58,23 +61,21 @@ public class MainActivity extends AppCompatActivity
 //        moves.add(new Move("five", CheckerColor.BLACK));
 //        moves.add(new Move("six", CheckerColor.WHITE));
 //        moves.add(new Move("seven", CheckerColor.BLACK));
-
-
-//        System.out.println("#ffffff   " +   Color.parseColor("#ffffff") +  "#000000   " +  Color.parseColor("#000000"));
-
-        //
 //        dbLocalConnector.saveGame(new GameForDB("11/22/63", "2.13", "tiger VS lion", "normal", "lion", "5", "53", moves.toString(), Color.parseColor("#ffffff"), Color.parseColor("#000000")));
 //        dbLocalConnector.saveGame(new GameForDB("01/01/2005", "8.25", "second VS first", "not normal", "first", "25", "10", moves.toString(), Color.parseColor("#000000"), Color.parseColor("#ffffff")));
-        //
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        setUserInfo();
+        showHistory();
+    }
+
+    private void showHistory() {
         if(dbLocalConnector.getAllGames()!= null){
             ListView history = findViewById(R.id.history);
             adapter = new GameItemAdapter(this, new ArrayList<>(dbLocalConnector.getAllGames()));
@@ -96,7 +97,40 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+    }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        setUserInfo();
+        showHistory();
+    }
+
+    private void setUserInfo() {
+        User user = userController.getUser();
+        NavigationView nav = findViewById(R.id.nav_view);
+        TextView userNicknameView = nav.getHeaderView(0).findViewById(R.id.user_nickname);
+        TextView userEmailView = nav.getHeaderView(0).findViewById(R.id.user_email);
+        if(user !=null){
+            userNicknameView.setText(user.getNickname());
+            userEmailView.setText(user.getEmail());
+        }
+
+    }
+
+    private void staelIntroActivity() {
+        final SharedPreferencesConnector sharedPreferencesConnector = new SharedPreferencesConnector(this);
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (sharedPreferencesConnector.isFirstStart()) {
+                    Intent i = new Intent(MainActivity.this, IntroActivity.class);
+                    startActivity(i);
+                    sharedPreferencesConnector.setNotFirstStart();
+                }
+            }
+        });
+        t.start();
     }
 
     @Override
@@ -109,32 +143,42 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_start_offline) {
-
+            Intent offlineGame = new Intent(this, OneGameActivity.class);
+            startActivity(offlineGame);
         } else if (id == R.id.nav_start_bluetooth) {
 
         } else if (id == R.id.nav_start_online) {
 
         } else if (id == R.id.nav_settings) {
-
+            Intent settingsActivity = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(settingsActivity);
         } else if (id == R.id.nav_intro) {
-
+            Intent i = new Intent(MainActivity.this, IntroActivity.class);
+            startActivity(i);
         } else if (id == R.id.nav_send) {
-
+            String OUR_MAIL_ADDRESS = "veggimail6@gmail.com";
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                    "mailto", OUR_MAIL_ADDRESS, null));
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Trigger Reminders");
+            startActivity(Intent.createChooser(emailIntent, "Send email..."));
+        }else if (id == R.id.nav_exit) {
+            userController.logOut();
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
     class GameItemAdapter extends BaseAdapter {
 
@@ -163,7 +207,7 @@ public class MainActivity extends AppCompatActivity
             return  games.get(i).getId();
         }
 
-        public ArrayList<GameForDB> getGames() {
+        ArrayList<GameForDB> getGames() {
             return games;
         }
 
@@ -206,7 +250,6 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
-
 
     @SuppressWarnings("unused")
     public void showErrorMessage(View view, String errorMSG){

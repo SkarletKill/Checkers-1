@@ -7,7 +7,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gmail.lidteam.checkers.R;
-import com.gmail.lidteam.checkers.controllers.UserController;
 
 public class UserAccountActivity extends AppCompatActivity {
     private ImageView checkersLogo;
@@ -20,8 +19,6 @@ public class UserAccountActivity extends AppCompatActivity {
     private Button btn_changePassword;
     private Button btn_clearStatistics;
     private Button btn_buyCoins;
-
-    private UserController userController;
 
 
     @Override

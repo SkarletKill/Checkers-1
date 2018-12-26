@@ -6,4 +6,10 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="offline_desc">Play offline with artificial intelligence at any moment</string>
+    <string name="offline_title">Improve skills offline with AI</string>
+    <string name="bluetooth_title">Play with closest friends</string>
+    <string name="bluetooth_desc">Play via bluetooth connection with people around</string>
+    <string name="online_desc">Play online with people from all around the world</string>
+    <string name="online_title">Show your skills to the world</string>
 </resources>

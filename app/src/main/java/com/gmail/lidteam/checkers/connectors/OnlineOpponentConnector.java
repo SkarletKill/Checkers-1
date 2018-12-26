@@ -1,8 +1,10 @@
 package com.gmail.lidteam.checkers.connectors;
 
+import com.gmail.lidteam.checkers.models.Move;
+
 public class OnlineOpponentConnector extends OpponentConnector {
     @Override
-    public String getOpponentsMove() {
+    public Move getOpponentsMove() {
         return null;
     }
 

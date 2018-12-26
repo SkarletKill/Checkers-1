@@ -3,6 +3,7 @@ package com.gmail.lidteam.checkers.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,8 +13,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
-import com.gmail.lidteam.checkers.connectors.DBConnector;
+import com.gmail.lidteam.checkers.controllers.UserController;
 import com.gmail.lidteam.checkers.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,8 +32,10 @@ import butterknife.ButterKnife;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-    User user;
-    DBConnector dbConnector;
+    private FirebaseAuth mAuth;
+    String email;
+    String password;
+    UserController userController = UserController.getInstance(this);
 
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
@@ -34,9 +47,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
-        
-        _loginButton.setOnClickListener(new View.OnClickListener() {
 
+        
+        mAuth = FirebaseAuth.getInstance();
+
+        _loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 login();
@@ -72,30 +87,34 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        email = _emailText.getText().toString();
+        password = _passwordText.getText().toString();
 
-        // TODO: Implement your own authentication logic here.
+        mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                progressDialog.dismiss();
+                if(task.isSuccessful()) {
+                    onLoginSuccess();
+                }else    {
+                    onLoginFailed();
+                }
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, e.getMessage());
+                Toast.makeText(getBaseContext(),  e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
-
-
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-
-                // TODO: Implement successful signup logic here
-                // By default we just finish the Activity and log them in automatically
+                userController.setUserLocally(new User(email, "nick", 0,0,0));
                 this.finish();
             }
         }
@@ -109,12 +128,28 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
-        finish();
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        if (mAuth.getUid() != null) {
+            DatabaseReference myRefUser = database.getReference().
+                    child(mAuth.getUid()).child("userHimself");
+            myRefUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    userController.setUserLocally(dataSnapshot.getChildren().iterator().next().getValue(User.class));
+                    finish();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    onLoginFailed();
+                }
+            });
+        }
+
     }
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
         _loginButton.setEnabled(true);
     }
 
@@ -131,8 +166,8 @@ public class LoginActivity extends AppCompatActivity {
             _emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 6 || password.length() > 10) {
+            _passwordText.setError("between 6 and 10 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
@@ -140,4 +175,6 @@ public class LoginActivity extends AppCompatActivity {
 
         return valid;
     }
+
+
 }

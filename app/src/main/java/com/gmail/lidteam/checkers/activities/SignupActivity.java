@@ -3,6 +3,7 @@ package com.gmail.lidteam.checkers.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,13 +13,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.lidteam.checkers.R;
+import com.gmail.lidteam.checkers.controllers.UserController;
+import com.gmail.lidteam.checkers.models.AILevel;
+import com.gmail.lidteam.checkers.models.GameType;
+import com.gmail.lidteam.checkers.models.PlayerColor;
+import com.gmail.lidteam.checkers.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
-
+    private FirebaseAuth mAuth;
     @BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
@@ -31,6 +44,7 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         ButterKnife.bind(this);
+        mAuth = FirebaseAuth.getInstance();
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,35 +74,61 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         _signupButton.setEnabled(false);
-
         final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creating Account...");
         progressDialog.show();
 
-        String name = _nameText.getText().toString();
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
-        String reEnterPassword = _reEnterPasswordText.getText().toString();
+        final String name = _nameText.getText().toString();
+        final String email = _emailText.getText().toString();
+        final String password = _passwordText.getText().toString();
 
-        // TODO: Implement your own signup logic here.
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
+        mAuth.createUserWithEmailAndPassword(email, password).
+                addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.dismiss();
+                        if(task.isSuccessful())
+                        {
+                            Log.d(TAG, "task.isSuccessful() true");
+                            onSignupSuccess(email, name);
+                        }
+                        else  {
+                            Log.d(TAG, "task.isSuccessful() false");
+                            onSignupFailed();
+                        }
+
                     }
-                }, 3000);
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, e.getMessage());
+                Toast.makeText(getBaseContext(),  e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 
-    public void onSignupSuccess() {
+    public void onSignupSuccess(String email, String name) {
         _signupButton.setEnabled(true);
+        User user = new User(email,
+                name, 0,0,0, GameType.ANY, PlayerColor.ANY, AILevel.EASY);
+        // Write a message to the database
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference();
+        if(mAuth.getUid() != null) {
+            System.out.println("FUCK");
+            myRef.child(
+                    mAuth.getUid()).child("userHimself").
+                    push().
+                    setValue(user);
+            UserController.getInstance(this).setUserLocally(new User(email, name, 0,0,0, GameType.ANY, PlayerColor.ANY, AILevel.EASY));
+
+        }
+        System.out.println("user from signup activity     "+user);
         setResult(RESULT_OK, null);
         finish();
     }

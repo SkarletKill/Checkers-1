@@ -5,15 +5,27 @@ import android.support.annotation.NonNull;
 
 
 public class Move {
+    private Cell from;
+    private Cell to;
     private String move;
     private int color;
     private int oppositeColor;
 
-    @SuppressWarnings("unused")
-    public Move(String move, CheckerColor color) {
-        this.move = move;
+    public Move(Cell from, Cell to, CheckerColor color, boolean fight) {
+        this.from = from;
+        this.to = to;
         this.color = Color.parseColor(color.getColorCode());
         this.oppositeColor = Color.parseColor(color.getOppositeColorCode());
+        this.move = from.getCoordinates() + "-" + to.getCoordinates();
+        if (fight) this.move += "*";
+    }
+
+    public Cell getFrom() {
+        return from;
+    }
+
+    public Cell getTo() {
+        return to;
     }
 
     public String getMove() {
@@ -40,7 +52,7 @@ public class Move {
     @NonNull
     @Override
     public String toString() {
-        return  move + " " + color + " " + oppositeColor;
+        return move + " " + color + " " + oppositeColor;
     }
 
     public Move(String move) {

@@ -1,11 +1,18 @@
 package com.gmail.lidteam.checkers.models;
 
 public class User {
+    
     private String email;
     private String nickname;
     private int unbelievableWins;
     private int epicFails;
     private int draws;
+    private GameType preferredType;
+    private PlayerColor preferredColor;
+    private AILevel preferredAiLevel;
+
+    public User() {
+    }
 
     public User(String email, String nickname, int unbelievableWins, int epicFails, int draws) {
         this.email = email;
@@ -15,12 +22,32 @@ public class User {
         this.draws = draws;
     }
 
-    public String getEmail() {
-        return email;
+    public User(String email, String nickname, int unbelievableWins, int epicFails, int draws,
+                GameType preferredType, PlayerColor preferredColor, AILevel preferredAiLevel) {
+        this.email = email;
+        this.nickname = nickname;
+        this.unbelievableWins = unbelievableWins;
+        this.epicFails = epicFails;
+        this.draws = draws;
+        this.preferredType = preferredType;
+        this.preferredColor = preferredColor;
+        this.preferredAiLevel = preferredAiLevel;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public GameType getPreferredType() {
+        return preferredType;
+    }
+
+    public PlayerColor getPreferredColor() {
+        return preferredColor;
+    }
+
+    public AILevel getPreferredAiLevel() {
+        return preferredAiLevel;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public String getNickname() {
@@ -53,5 +80,17 @@ public class User {
 
     public void setDraws(int draws) {
         this.draws = draws;
+    }
+
+    public void setPreferredType(GameType preferredType) {
+        this.preferredType = preferredType;
+    }
+
+    public void setPreferredColor(PlayerColor preferredColor) {
+        this.preferredColor = preferredColor;
+    }
+
+    public void setPreferredAiLevel(AILevel preferredAiLevel) {
+        this.preferredAiLevel = preferredAiLevel;
     }
 }
