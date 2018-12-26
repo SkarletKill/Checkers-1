@@ -188,18 +188,18 @@ public class OfflineOpponentConnector extends OpponentConnector {
             pos = controller.getCoordinatesRelative(CheckerCoord, -1, -1);
             while (controller.checkCollisionFor(pos) && controller.getChecker(pos) == null) {
                 moves.add(new Move(checker.getPosition(), getCell(pos), checker.getColor(), fight));
-                pos = controller.getCoordinatesRelative(pos, -1, 1);
+                pos = controller.getCoordinatesRelative(pos, -1, -1);
             }
 
             pos = controller.getCoordinatesRelative(CheckerCoord, 1, 1);
             while (controller.checkCollisionFor(pos) && controller.getChecker(pos) == null) {
                 moves.add(new Move(checker.getPosition(), getCell(pos), checker.getColor(), fight));
-                pos = controller.getCoordinatesRelative(pos, -1, 1);
+                pos = controller.getCoordinatesRelative(pos, 1, 1);
             }
             pos = controller.getCoordinatesRelative(CheckerCoord, 1, -1);
             while (controller.checkCollisionFor(pos) && controller.getChecker(pos) == null) {
                 moves.add(new Move(checker.getPosition(), getCell(pos), checker.getColor(), fight));
-                pos = controller.getCoordinatesRelative(pos, -1, 1);
+                pos = controller.getCoordinatesRelative(pos, 1, -1);
             }
         }
 
@@ -219,7 +219,7 @@ public class OfflineOpponentConnector extends OpponentConnector {
                         Move move = new Move(checker.getPosition(), getCell(tCoord2), checker.getColor(), true);
                         fights.add(move);
                         if (wCombats) killed.put(move, tCoord);
-                        tCoord2 = controller.getCoordinatesRelative(tCoord, dy, dx);
+                        tCoord2 = controller.getCoordinatesRelative(tCoord2, dy, dx);
                     }
                     break;
                 }
