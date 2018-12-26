@@ -156,11 +156,11 @@ public class GameController {
         return cell.getCoordinates().charAt(1);
     }
 
-    private char getCoordX(String coordinates) {
+    public char getCoordX(String coordinates) {
         return coordinates.charAt(0);
     }
 
-    private char getCoordY(String coordinates) {
+    public char getCoordY(String coordinates) {
         return coordinates.charAt(1);
     }
 
@@ -255,7 +255,7 @@ public class GameController {
         return false;
     }
 
-    private boolean canFightFor(Checker checker) {
+    public boolean canFightFor(Checker checker) {
         String tCoord;
 
         if (checker == null) {
@@ -421,11 +421,18 @@ public class GameController {
         return relativeCoordinates;
     }
 
-    private Cell getCellBetween(String coords1, String coords2) {
+    public Cell getCellBetween(String coords1, String coords2) {
         char midX = (char) ((getCoordX(coords1) + getCoordX(coords2)) / 2); //???
         char midY = (char) ((getCoordY(coords1) + getCoordY(coords2)) / 2); //???
         String betweenCoordinates = "" + midX + midY;
         return game.getBoard().get(betweenCoordinates);
+    }
+
+    public String getCoordinatesBetween(String coords1, String coords2) {
+        char midX = (char) ((getCoordX(coords1) + getCoordX(coords2)) / 2); //???
+        char midY = (char) ((getCoordY(coords1) + getCoordY(coords2)) / 2); //???
+        String betweenCoordinates = "" + midX + midY;
+        return betweenCoordinates;
     }
 
     private String[] setMinMaxCoordinates(char y, char x) {
