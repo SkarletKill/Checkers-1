@@ -62,6 +62,7 @@ public class OfflineOpponentConnector extends OpponentConnector {
                 tempBoard.get(possibleMove.getTo().getCoordinates()).setChecker(checker);
 
                 boolean moveWhite = user.equals(controller.getGame().getBlack());
+                List<Move> multipleBattle;
                 boolean requiredCombat = checkRequiredCombat(tempBoard, moveWhite);
 
                 if (requiredCombat) w1.add(possibleMove);

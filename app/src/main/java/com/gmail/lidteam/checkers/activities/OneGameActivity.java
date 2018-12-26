@@ -120,12 +120,7 @@ public class OneGameActivity extends AppCompatActivity {
 
                 whiteCheckers.setText(String.valueOf(gameModel.getWhites()));
                 blackCheckers.setText(String.valueOf(gameModel.getBlacks()));
-                if (gameOver) {
-                    Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname() + " won", Toast.LENGTH_LONG).show();
-                    // ... goto next Intent
-                    Intent intent = new Intent(OneGameActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }
+                if (gameOver) gameOver();
 
             }
         };
@@ -199,6 +194,7 @@ public class OneGameActivity extends AppCompatActivity {
                 if (!gameOver) {
                     gameController.surrender();
                     gameOver = true;
+                    gameOver();
                 }
             }
         });
@@ -231,17 +227,11 @@ public class OneGameActivity extends AppCompatActivity {
         gridViewOnItemClickListener.onItemClick(board, board.getChildAt(pos), 0, 0);
     }
 
-    public void addChecker(String coordinates, CheckerColor color, CheckerType type) {
-    }
-
-    public void deleteChecker(String coordinates) {
-    }
-
-    public void selectCell(String coordinates) {
-        // change color
-    }
-
-    public void changeBackgroundColor() {
+    public void gameOver(){
+        Toast.makeText(OneGameActivity.this, gameModel.getWinner().getNickname() + " won", Toast.LENGTH_LONG).show();
+        // ... goto next Intent
+        Intent intent = new Intent(OneGameActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 
 
