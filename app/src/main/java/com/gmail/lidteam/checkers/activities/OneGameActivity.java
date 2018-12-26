@@ -149,7 +149,7 @@ public class OneGameActivity extends AppCompatActivity {
                         timer.setText(fixTime(String.valueOf(minutes[0])) + " : " + fixTime(String.valueOf(seconds[0])));
                         seconds[0] += 1;
 
-                        if (seconds[0] == 60) {
+                        if (seconds[0] == 59) {
                             timer.setText(fixTime(String.valueOf(minutes[0])) + " : " + fixTime(String.valueOf(seconds[0])));
 
                             seconds[0] = 0;

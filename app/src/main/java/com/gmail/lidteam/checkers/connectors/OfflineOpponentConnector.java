@@ -38,7 +38,6 @@ public class OfflineOpponentConnector extends OpponentConnector {
         if (user.getNickname().equals(AILevel.EASY.name())) wCombats = false;
         else if (user.getNickname().equals(AILevel.MIDDLE.name())) wCombats = true;
         else if (user.getNickname().equals(AILevel.HARD.name())) wCombats = true;
-        if (controller.getGame().getGameType().equals(GameType.GIVEAWAY)) wCombats = !wCombats;
         return chooseMove();
     }
 
@@ -69,12 +68,22 @@ public class OfflineOpponentConnector extends OpponentConnector {
                 else w3.add(possibleMove);
             }
 
-            if (w3.isEmpty()) {
-                int index = new Random().nextInt(w1.size());
-                move = w1.get(index);
+            if (controller.getGame().getGameType().equals(GameType.CLASSIC)) {
+                if (w3.isEmpty()) {
+                    int index = new Random().nextInt(w1.size());
+                    move = w1.get(index);
+                } else {
+                    int index = new Random().nextInt(w3.size());
+                    move = w3.get(index);
+                }
             } else {
-                int index = new Random().nextInt(w3.size());
-                move = w3.get(index);
+                if (w1.isEmpty()) {
+                    int index = new Random().nextInt(w3.size());
+                    move = w3.get(index);
+                } else {
+                    int index = new Random().nextInt(w1.size());
+                    move = w1.get(index);
+                }
             }
 
             return move;
